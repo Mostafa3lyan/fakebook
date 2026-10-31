@@ -16,7 +16,6 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +29,7 @@ import { ThemeToggle } from "@/components/shared/theme-toggle"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { useCurrentUser } from "@/hooks/user/use-current-user"
 import { useLogout } from "@/hooks/user/use-logout"
+import { HeaderSearch } from "./header-search"
 
 export function MainHeader() {
   const pathname = usePathname()
@@ -68,15 +68,7 @@ export function MainHeader() {
           </Link>
 
           {/* Desktop Search input */}
-          <div className="relative hidden sm:block flex-1 max-w-xs">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
-            <Input
-              type="search"
-              placeholder="Search Fakebook..."
-              className="pl-8 bg-muted/60 border-none h-9 text-sm focus-visible:ring-2 focus-visible:ring-primary"
-              aria-label="Search posts and users"
-            />
-          </div>
+          <HeaderSearch className="hidden sm:block flex-1 max-w-xs" />
 
           {/* Mobile search toggle button */}
           <Button
@@ -194,16 +186,10 @@ export function MainHeader() {
       {/* Mobile Expandable Search Bar */}
       {isMobileSearchOpen && (
         <div className="sm:hidden px-4 pb-3 pt-1 border-t border-border/40 bg-card">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              type="search"
-              placeholder="Search Fakebook..."
-              autoFocus
-              className="pl-8 bg-muted/70 min-h-11 text-sm"
-              aria-label="Search posts and users"
-            />
-          </div>
+          <HeaderSearch
+            autoFocus
+            onSelectResult={() => setIsMobileSearchOpen(false)}
+          />
         </div>
       )}
     </header>
