@@ -1,6 +1,26 @@
 import * as React from "react"
 import { authService } from "@/services"
 import { getErrorMessage } from "@/lib/api/errors"
+import { ApiResponse } from "@/lib/types"
+
+// Module-level cache to prevent React 19 Strict Mode double-mount from consuming
+// the single-use Redis magic link token twice.
+const magicLinkVerificationCache = new Map<
+  string,
+  Promise<ApiResponse<{ resetToken: string }>>
+>()
+
+function verifyMagicLinkOnce(token: string) {
+  const existing = magicLinkVerificationCache.get(token)
+  if (existing) return existing
+
+  const promise = authService.verifyMagicLink(token).catch((err) => {
+    magicLinkVerificationCache.delete(token)
+    throw err
+  })
+  magicLinkVerificationCache.set(token, promise)
+  return promise
+}
 
 export function useVerifyMagicLink(initialToken: string) {
   const isJwtMagicLink = initialToken ? initialToken.split(".").length === 3 : false
@@ -17,8 +37,7 @@ export function useVerifyMagicLink(initialToken: string) {
 
     let isMounted = true
 
-    authService
-      .verifyMagicLink(initialToken)
+    verifyMagicLinkOnce(initialToken)
       .then((res) => {
         if (!isMounted) return
         const resolved = res?.data?.resetToken

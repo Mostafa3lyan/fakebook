@@ -11,7 +11,7 @@ export function useSignup() {
     mutationFn: (values: SignupSchemaType) => authService.signup(values),
     onSuccess: (_, variables) => {
       toast.success("Account created! Please check your email for the verification code.")
-      router.push(`/confirm-email?email=${encodeURIComponent(variables.email)}`)
+      router.push(`/confirm-signup-email?email=${encodeURIComponent(variables.email)}`)
     },
   })
 

@@ -54,19 +54,24 @@ export function TwoFactorSettings({ user }: TwoFactorSettingsProps) {
     })
   }
 
-  const handleConfirmOtp = (e?: React.FormEvent) => {
+  const isEnabled = user.twoFactorVerified
+  const isPendingAction = isEnabling || isDisabling
+  const actionError = mode === "enable" ? enableError : disableError
+
+  const handleConfirmOtp = (e?: React.FormEvent, completedCode?: string) => {
     if (e) e.preventDefault()
-    if (otp.length !== 6) return
+    const codeToVerify = completedCode ?? otp
+    if (isPendingAction || codeToVerify.length !== 6) return
 
     if (mode === "enable") {
-      enable2fa(otp, {
+      enable2fa(codeToVerify, {
         onSuccess: () => {
           setIsOpen(false)
           setOtp("")
         },
       })
     } else {
-      disable2fa(otp, {
+      disable2fa(codeToVerify, {
         onSuccess: () => {
           setIsOpen(false)
           setOtp("")
@@ -74,10 +79,6 @@ export function TwoFactorSettings({ user }: TwoFactorSettingsProps) {
       })
     }
   }
-
-  const isEnabled = user.twoFactorVerified
-  const isPendingAction = isEnabling || isDisabling
-  const actionError = mode === "enable" ? enableError : disableError
 
   return (
     <>
@@ -180,7 +181,7 @@ export function TwoFactorSettings({ user }: TwoFactorSettingsProps) {
                 maxLength={6}
                 value={otp}
                 onChange={setOtp}
-                onComplete={() => handleConfirmOtp()}
+                onComplete={(code) => handleConfirmOtp(undefined, code)}
                 pattern={REGEXP_ONLY_DIGITS}
                 inputMode="numeric"
                 autoComplete="one-time-code"

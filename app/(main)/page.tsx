@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 
 import { PostComposerTrigger } from "@/components/posts"
-import { FeedWelcomeCard } from "./_components/feed-welcome-card"
 import { HomeFeedStream } from "./_components/home-feed-stream"
 
 export const metadata: Metadata = {
@@ -14,7 +13,6 @@ export default function HomePage() {
     <div className="max-w-2xl mx-auto py-2 space-y-5">
       <h1 className="sr-only">News Feed</h1>
       <PostComposerTrigger />
-      <FeedWelcomeCard />
       <HomeFeedStream />
     </div>
   )

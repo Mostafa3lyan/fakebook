@@ -30,6 +30,8 @@ async function handleProxyRequest(
   const targetUrl = `${backendBase}/${targetPath}${search}`
 
   let { accessToken, refreshToken } = await getSessionTokens()
+  let rotatedCredentials: { access_token: string; refresh_token: string } | null = null
+  let rotationFailed = false
 
   // Proactive refresh if expiring soon (< 30s)
   if (
@@ -42,6 +44,9 @@ async function handleProxyRequest(
     if (refreshed?.access_token) {
       accessToken = refreshed.access_token
       refreshToken = refreshed.refresh_token
+      rotatedCredentials = refreshed
+    } else {
+      rotationFailed = true
     }
   }
 
@@ -74,11 +79,15 @@ async function handleProxyRequest(
   ) {
     const refreshed = await rotateTokens(refreshToken)
     if (refreshed?.access_token) {
+      rotatedCredentials = refreshed
+      rotationFailed = false
       backendRes = await fetch(targetUrl, {
         method,
         headers: buildHeaders(refreshed.access_token),
         body: forwardBody,
       })
+    } else {
+      rotationFailed = true
     }
   }
 
@@ -93,6 +102,35 @@ async function handleProxyRequest(
     },
   })
 
+  const isProduction = process.env.NODE_ENV === "production"
+
+  // Propagate any rotated credentials onto nextResponse cookies
+  if (rotatedCredentials) {
+    nextResponse.cookies.set(ACCESS_TOKEN_COOKIE, rotatedCredentials.access_token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "lax",
+      path: "/",
+      maxAge: ACCESS_TOKEN_MAX_AGE,
+    })
+    nextResponse.cookies.set(REFRESH_TOKEN_COOKIE, rotatedCredentials.refresh_token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "lax",
+      path: "/",
+      maxAge: REFRESH_TOKEN_MAX_AGE,
+    })
+  } else if (rotationFailed) {
+    nextResponse.cookies.delete(ACCESS_TOKEN_COOKIE)
+    nextResponse.cookies.delete(REFRESH_TOKEN_COOKIE)
+  }
+
+  // Always clear session cookies on user/logout (even if backend token was already expired/revoked)
+  if (targetPath === "user/logout") {
+    nextResponse.cookies.delete(ACCESS_TOKEN_COOKIE)
+    nextResponse.cookies.delete(REFRESH_TOKEN_COOKIE)
+  }
+
   // Synchronize HttpOnly cookies upon successful auth operations
   if (backendRes.ok && responseContentType.includes("application/json")) {
     try {
@@ -100,9 +138,7 @@ async function handleProxyRequest(
       const parsed = JSON.parse(text)
       const data = parsed?.data
 
-      const isProduction = process.env.NODE_ENV === "production"
-
-      // 1. If tokens are issued (login, login-confirm, google auth, rotate, change-password)
+      // 1. If tokens are issued (login, login-confirm, google auth, rotate, change-password, restore-account)
       if (data?.access_token && data?.refresh_token) {
         nextResponse.cookies.set(ACCESS_TOKEN_COOKIE, data.access_token, {
           httpOnly: true,
@@ -120,9 +156,8 @@ async function handleProxyRequest(
         })
       }
 
-      // 2. If session is destroyed (logout, delete account, soft delete)
+      // 2. If account is deleted or deactivated
       if (
-        targetPath === "user/logout" ||
         targetPath === "user/delete-account" ||
         targetPath === "user/soft-delete"
       ) {

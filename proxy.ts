@@ -6,7 +6,7 @@ import { safeRedirectTarget } from "@/lib/utils/safe-redirect"
 const publicRoutes = new Set([
   "/login",
   "/signup",
-  "/confirm-email",
+  "/confirm-signup-email",
   "/forgot-password",
   "/verify-otp",
   "/reset-password",

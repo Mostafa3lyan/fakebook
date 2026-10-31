@@ -1,6 +1,4 @@
-import * as React from "react"
 import { Mail, Phone, Calendar, User, Shield, Eye } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { IUser } from "@/lib/types"
 import { formatFullDate } from "@/lib/utils/date"
 
@@ -22,7 +20,9 @@ export function ProfileInfoCard({ user }: ProfileInfoCardProps) {
     },
     {
       label: "Gender",
-      value: user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : "Not specified",
+      value: user.gender
+        ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1)
+        : "Not specified",
       icon: User,
     },
     {
@@ -46,37 +46,28 @@ export function ProfileInfoCard({ user }: ProfileInfoCardProps) {
   }
 
   return (
-    <Card className="border-border shadow-xs">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-bold font-heading text-foreground">
-          About & Personal Info
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {details.map((item) => {
-            const Icon = item.icon
-            return (
-              <div
-                key={item.label}
-                className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-muted/30"
-              >
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Icon className="size-4" aria-hidden="true" />
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-xs text-muted-foreground font-medium">
-                    {item.label}
-                  </span>
-                  <span className="text-sm font-semibold text-foreground truncate">
-                    {item.value}
-                  </span>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {details.map((item) => {
+        const Icon = item.icon
+        return (
+          <div
+            key={item.label}
+            className="flex items-start gap-3 p-3 rounded-xl border border-border/60 bg-muted/30"
+          >
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Icon className="size-4" aria-hidden="true" />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs text-muted-foreground font-medium">
+                {item.label}
+              </span>
+              <span className="text-sm font-semibold text-foreground truncate">
+                {item.value}
+              </span>
+            </div>
+          </div>
+        )
+      })}
+    </div>
   )
 }
