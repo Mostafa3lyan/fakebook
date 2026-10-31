@@ -6,6 +6,7 @@ import {
   X,
   Image as ImageIcon,
   MapPin,
+  Tag,
   Loader2,
   Plus,
   Undo2,
@@ -24,11 +25,18 @@ import { Textarea } from "@/components/ui/textarea"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { useCurrentUser } from "@/hooks/user/use-current-user"
 import { useUpdatePost } from "@/hooks/posts/use-update-post"
-import { IPost, IPostLocation, IPublicUser, PostVisibilityEnum } from "@/lib/types"
+import {
+  IFriendUser,
+  IPost,
+  IPostLocation,
+  IPublicUser,
+  PostVisibilityEnum,
+} from "@/lib/types"
 import { resolveMediaUrl } from "@/lib/utils/media"
 import { PostAttachments } from "./post-attachments"
 import { PostVisibilitySelect } from "./post-visibility-select"
 import { PostLocationPopover } from "./post-location-popover"
+import { PostTagFriendsPopover } from "./post-tag-friends-popover"
 
 interface PostEditDialogProps {
   post: IPost
@@ -60,6 +68,15 @@ function PostEditForm({
   )
   const [locationName, setLocationName] = React.useState(
     post.location?.name || ""
+  )
+  const [taggedFriends, setTaggedFriends] = React.useState<IFriendUser[]>(
+    () =>
+      (post.tags || []).map((t) => ({
+        _id: t._id,
+        firstName: t.firstName,
+        lastName: t.lastName,
+        profilePicture: t.profilePicture,
+      }))
   )
 
   // Attachments tracking
@@ -166,6 +183,7 @@ function PostEditForm({
           content: trimmedContent,
           visibility,
           location: locationObj,
+          tags: taggedFriends.map((f) => f._id),
           removeAttachments:
             !isSharedPost && removedKeys.length > 0 ? removedKeys : undefined,
           files:
@@ -205,21 +223,48 @@ function PostEditForm({
         </div>
       </div>
 
-      {/* Location Chip */}
-      {locationName && (
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300 text-xs font-medium border border-rose-500/30">
-            <MapPin className="size-3 text-rose-500" />
-            <span>at {locationName}</span>
-            <button
-              type="button"
-              onClick={() => setLocationName("")}
-              className="ml-1 hover:text-destructive cursor-pointer"
-              aria-label="Remove location"
-            >
-              <X className="size-3" />
-            </button>
-          </span>
+      {/* Location & Tagged Friends Chips */}
+      {(locationName || taggedFriends.length > 0) && (
+        <div className="flex items-center gap-2 flex-wrap text-xs">
+          {locationName && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300 font-medium border border-rose-500/30">
+              <MapPin className="size-3 text-rose-500" />
+              <span>at {locationName}</span>
+              <button
+                type="button"
+                onClick={() => setLocationName("")}
+                className="ml-1 hover:text-destructive cursor-pointer"
+                aria-label="Remove location"
+              >
+                <X className="size-3" />
+              </button>
+            </span>
+          )}
+
+          {taggedFriends.map((friend) => {
+            const friendName = `${friend.firstName} ${friend.lastName}`.trim()
+            return (
+              <span
+                key={friend._id}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300 font-medium border border-blue-500/30"
+              >
+                <Tag className="size-3 text-blue-500" />
+                <span>with {friendName}</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setTaggedFriends((prev) =>
+                      prev.filter((f) => f._id !== friend._id)
+                    )
+                  }
+                  className="ml-1 hover:text-destructive cursor-pointer"
+                  aria-label={`Remove tag for ${friendName}`}
+                >
+                  <X className="size-3" />
+                </button>
+              </span>
+            )
+          })}
         </div>
       )}
 
@@ -425,6 +470,12 @@ function PostEditForm({
               <ImageIcon className="size-5" />
             </Button>
           )}
+
+          <PostTagFriendsPopover
+            selectedFriends={taggedFriends}
+            onChangeSelectedFriends={setTaggedFriends}
+            disabled={isPending}
+          />
 
           <PostLocationPopover
             locationName={locationName}

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Image as ImageIcon, Smile, MapPin } from "lucide-react"
+import { Image as ImageIcon, Smile, MapPin, Tag } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -18,10 +18,12 @@ export function PostComposerTrigger({ className }: PostComposerTriggerProps) {
   const { user } = useCurrentUser()
   const [open, setOpen] = React.useState(false)
   const [initialMode, setInitialMode] = React.useState<
-    "photo" | "feeling" | "location" | null
+    "photo" | "tag" | "feeling" | "location" | null
   >(null)
 
-  const handleOpen = (mode: "photo" | "feeling" | "location" | null = null) => {
+  const handleOpen = (
+    mode: "photo" | "tag" | "feeling" | "location" | null = null
+  ) => {
     setInitialMode(mode)
     setOpen(true)
   }
@@ -59,6 +61,18 @@ export function PostComposerTrigger({ className }: PostComposerTriggerProps) {
             >
               <ImageIcon className="size-4.5 mr-2 text-emerald-500 shrink-0" aria-hidden="true" />
               <span>Photo / Video</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => handleOpen("tag")}
+              className="flex-1 text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10 min-h-11 cursor-pointer px-2"
+              aria-label="Tag friends in post"
+            >
+              <Tag className="size-4.5 mr-2 text-blue-500 shrink-0" aria-hidden="true" />
+              <span>Tag Friends</span>
             </Button>
 
             <Button

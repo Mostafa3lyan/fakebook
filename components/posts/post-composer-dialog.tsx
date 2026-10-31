@@ -7,6 +7,7 @@ import {
   Image as ImageIcon,
   Smile,
   MapPin,
+  Tag,
   Loader2,
   Plus,
 } from "lucide-react"
@@ -28,9 +29,10 @@ import {
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { useCurrentUser } from "@/hooks/user/use-current-user"
 import { useCreatePost } from "@/hooks/posts/use-create-post"
-import { IPostLocation, PostVisibilityEnum } from "@/lib/types"
+import { IFriendUser, IPostLocation, PostVisibilityEnum } from "@/lib/types"
 import { PostVisibilitySelect } from "./post-visibility-select"
 import { PostLocationPopover } from "./post-location-popover"
+import { PostTagFriendsPopover } from "./post-tag-friends-popover"
 
 interface PostComposerDialogProps {
   open: boolean
@@ -86,6 +88,7 @@ function PostComposerForm({
     emoji: string
   } | null>(null)
   const [locationName, setLocationName] = React.useState("")
+  const [taggedFriends, setTaggedFriends] = React.useState<IFriendUser[]>([])
 
   const fileInputRef = React.useRef<HTMLInputElement | null>(null)
   const itemsRef = React.useRef<FileAttachmentItem[]>([])
@@ -176,6 +179,10 @@ function PostComposerForm({
         content: finalContent || undefined,
         visibility,
         location: locationObj,
+        tags:
+          taggedFriends.length > 0
+            ? taggedFriends.map((f) => f._id)
+            : undefined,
         files:
           attachmentItems.length > 0
             ? attachmentItems.map((item) => item.file)
@@ -214,8 +221,8 @@ function PostComposerForm({
         </div>
       </div>
 
-      {/* Active Chips (Feeling / Location) */}
-      {(selectedFeeling || locationName) && (
+      {/* Active Chips (Feeling / Location / Tagged Friends) */}
+      {(selectedFeeling || locationName || taggedFriends.length > 0) && (
         <div className="flex items-center gap-2 flex-wrap text-xs">
           {selectedFeeling && (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-medium border border-amber-500/30">
@@ -247,6 +254,31 @@ function PostComposerForm({
               </button>
             </span>
           )}
+
+          {taggedFriends.map((friend) => {
+            const friendName = `${friend.firstName} ${friend.lastName}`.trim()
+            return (
+              <span
+                key={friend._id}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300 font-medium border border-blue-500/30"
+              >
+                <Tag className="size-3 text-blue-500" />
+                <span>with {friendName}</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setTaggedFriends((prev) =>
+                      prev.filter((f) => f._id !== friend._id)
+                    )
+                  }
+                  className="ml-1 hover:text-destructive cursor-pointer"
+                  aria-label={`Remove tag for ${friendName}`}
+                >
+                  <X className="size-3" />
+                </button>
+              </span>
+            )
+          })}
         </div>
       )}
 
@@ -365,6 +397,14 @@ function PostComposerForm({
           >
             <ImageIcon className="size-5" />
           </Button>
+
+          {/* Tag Friends Trigger */}
+          <PostTagFriendsPopover
+            selectedFriends={taggedFriends}
+            onChangeSelectedFriends={setTaggedFriends}
+            disabled={isPending}
+            defaultOpen={initialMode === "tag"}
+          />
 
           {/* Feeling Trigger */}
           <Popover>
