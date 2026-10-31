@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { authService } from "@/services/auth.service"
+import { userService } from "@/services/user.service"
 import { ApiError } from "@/lib/api/errors"
 import { ChangePasswordSchemaType } from "@/lib/schemas/auth.schema"
 
@@ -13,7 +13,7 @@ export function useChangePassword() {
     ChangePasswordSchemaType
   >({
     mutationFn: async (data) => {
-      const response = await authService.changePassword(data)
+      const response = await userService.changePassword(data)
       return response.data
     },
     onSuccess: () => {

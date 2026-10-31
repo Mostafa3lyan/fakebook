@@ -171,7 +171,7 @@ export function CommentItemActions({
             <Button
               variant="ghost"
               size="icon"
-              className="size-6 text-muted-foreground opacity-0 group-hover/comment:opacity-100 hover:text-foreground cursor-pointer rounded-full min-h-11 min-w-11"
+              className="size-6 text-muted-foreground opacity-100 sm:opacity-0 sm:group-hover/comment:opacity-100 sm:focus-visible:opacity-100 data-[state=open]:opacity-100 hover:text-foreground cursor-pointer rounded-full min-h-11 min-w-11"
               aria-label="Comment options"
             >
               <MoreHorizontal className="size-3.5" />

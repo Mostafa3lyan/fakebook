@@ -31,13 +31,19 @@ export function CommentDeleteDialog({
 }: CommentDeleteDialogProps) {
   const { mutate: deleteComment, isPending: isDeleting } = useDeleteComment()
 
-  const handleDeleteConfirm = () => {
-    deleteComment({
-      postId,
-      commentId,
-      parentCommentId,
-      repliesCount,
-    })
+  const handleDeleteConfirm = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    deleteComment(
+      {
+        postId,
+        commentId,
+        parentCommentId,
+        repliesCount,
+      },
+      {
+        onSuccess: () => onOpenChange(false),
+      }
+    )
   }
 
   return (

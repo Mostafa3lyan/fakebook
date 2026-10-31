@@ -24,6 +24,8 @@ interface NewFileItem {
   previewUrl: string
 }
 
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/jpg", "image/webp"]
+
 export function CommentEditForm({
   comment,
   postId,
@@ -62,8 +64,8 @@ export function CommentEditForm({
 
     const validItems: NewFileItem[] = []
     for (const f of incomingFiles) {
-      if (!f.type.startsWith("image/")) {
-        toast.error(`"${f.name}" is not an image file.`)
+      if (!ALLOWED_IMAGE_TYPES.includes(f.type)) {
+        toast.error(`"${f.name}" must be a JPEG, PNG, or WebP image.`)
         continue
       }
       if (f.size > 2 * 1024 * 1024) {
@@ -162,6 +164,7 @@ export function CommentEditForm({
                   }}
                   className="absolute top-0.5 right-0.5 size-4 rounded-full bg-black/70 text-white flex items-center justify-center cursor-pointer"
                   title={isRemoved ? "Undo remove" : "Remove photo"}
+                  aria-label={isRemoved ? "Undo remove photo" : "Remove existing photo"}
                 >
                   <X className="size-2.5" />
                 </button>
@@ -193,6 +196,7 @@ export function CommentEditForm({
                   setNewFiles((prev) => prev.filter((_, i) => i !== idx))
                 }}
                 className="absolute top-0.5 right-0.5 size-4 rounded-full bg-black/70 text-white flex items-center justify-center cursor-pointer"
+                aria-label={`Remove new photo ${idx + 1}`}
               >
                 <X className="size-2.5" />
               </button>

@@ -2,8 +2,9 @@
 
 import * as React from "react"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight, X, ZoomIn, ImageOff } from "lucide-react"
+import { ZoomIn, ImageOff } from "lucide-react"
 import { resolveMediaUrl } from "@/lib/utils/media"
+import { ImageLightbox } from "@/components/shared/image-lightbox"
 
 interface PostAttachmentsProps {
   attachments: string[]
@@ -14,44 +15,11 @@ export function PostAttachments({ attachments = [], postTitle }: PostAttachments
   const [lightboxIndex, setLightboxIndex] = React.useState<number | null>(null)
   const [failedImages, setFailedImages] = React.useState<Record<number, boolean>>({})
 
+  if (!attachments || attachments.length === 0) return null
+
   const count = attachments.length
   const displayedImages = attachments.slice(0, 4)
   const remainingCount = count - 4
-
-  const openLightbox = (index: number) => {
-    setLightboxIndex(index)
-  }
-
-  const closeLightbox = () => {
-    setLightboxIndex(null)
-  }
-
-  const nextImage = React.useCallback(() => {
-    if (lightboxIndex !== null) {
-      setLightboxIndex((prev) => ((prev ?? 0) + 1) % count)
-    }
-  }, [lightboxIndex, count])
-
-  const prevImage = React.useCallback(() => {
-    if (lightboxIndex !== null) {
-      setLightboxIndex((prev) => ((prev ?? 0) - 1 + count) % count)
-    }
-  }, [lightboxIndex, count])
-
-  React.useEffect(() => {
-    if (lightboxIndex === null) return
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeLightbox()
-      if (e.key === "ArrowRight") nextImage()
-      if (e.key === "ArrowLeft") prevImage()
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [lightboxIndex, nextImage, prevImage])
-
-  if (!attachments || attachments.length === 0) return null
 
   const handleImageError = (index: number) => {
     setFailedImages((prev) => ({ ...prev, [index]: true }))
@@ -62,9 +30,11 @@ export function PostAttachments({ attachments = [], postTitle }: PostAttachments
       {/* Gallery Layouts */}
       <div className="relative overflow-hidden rounded-xl border border-border/40 bg-muted/20">
         {count === 1 && (
-          <div
-            className="relative w-full max-h-130 h-85 sm:h-105 cursor-pointer group"
-            onClick={() => openLightbox(0)}
+          <button
+            type="button"
+            className="relative block w-full max-h-130 h-85 sm:h-105 cursor-pointer group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            onClick={() => setLightboxIndex(0)}
+            aria-label={postTitle ? `View ${postTitle}` : "View post attachment"}
           >
             {failedImages[0] ? (
               <div className="flex size-full flex-col items-center justify-center bg-muted/40 text-muted-foreground gap-2">
@@ -88,16 +58,18 @@ export function PostAttachments({ attachments = [], postTitle }: PostAttachments
                 <ZoomIn className="size-5" />
               </span>
             </div>
-          </div>
+          </button>
         )}
 
         {count === 2 && (
           <div className="grid grid-cols-2 gap-1 h-65 sm:h-80">
             {attachments.slice(0, 2).map((src, idx) => (
-              <div
+              <button
                 key={idx}
-                className="relative h-full w-full cursor-pointer group overflow-hidden"
-                onClick={() => openLightbox(idx)}
+                type="button"
+                className="relative h-full w-full cursor-pointer group overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                onClick={() => setLightboxIndex(idx)}
+                aria-label={`View attachment ${idx + 1} of ${count}`}
               >
                 {failedImages[idx] ? (
                   <div className="flex size-full flex-col items-center justify-center bg-muted/40 text-muted-foreground gap-2">
@@ -115,16 +87,18 @@ export function PostAttachments({ attachments = [], postTitle }: PostAttachments
                     sizes="(max-width: 768px) 50vw, 340px"
                   />
                 )}
-              </div>
+              </button>
             ))}
           </div>
         )}
 
         {count === 3 && (
           <div className="grid grid-cols-3 gap-1 h-[280px] sm:h-[340px]">
-            <div
-              className="relative col-span-2 h-full cursor-pointer group overflow-hidden"
-              onClick={() => openLightbox(0)}
+            <button
+              type="button"
+              className="relative col-span-2 h-full cursor-pointer group overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              onClick={() => setLightboxIndex(0)}
+              aria-label={`View attachment 1 of ${count}`}
             >
               {failedImages[0] ? (
                 <div className="flex size-full flex-col items-center justify-center bg-muted/40 text-muted-foreground gap-2">
@@ -142,13 +116,15 @@ export function PostAttachments({ attachments = [], postTitle }: PostAttachments
                   sizes="(max-width: 768px) 66vw, 450px"
                 />
               )}
-            </div>
+            </button>
             <div className="grid grid-rows-2 gap-1 h-full">
               {attachments.slice(1, 3).map((src, idx) => (
-                <div
+                <button
                   key={idx}
-                  className="relative h-full w-full cursor-pointer group overflow-hidden"
-                  onClick={() => openLightbox(idx + 1)}
+                  type="button"
+                  className="relative h-full w-full cursor-pointer group overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  onClick={() => setLightboxIndex(idx + 1)}
+                  aria-label={`View attachment ${idx + 2} of ${count}`}
                 >
                   {failedImages[idx + 1] ? (
                     <div className="flex size-full flex-col items-center justify-center bg-muted/40 text-muted-foreground gap-2">
@@ -165,7 +141,7 @@ export function PostAttachments({ attachments = [], postTitle }: PostAttachments
                       sizes="(max-width: 768px) 33vw, 220px"
                     />
                   )}
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -176,10 +152,12 @@ export function PostAttachments({ attachments = [], postTitle }: PostAttachments
             {displayedImages.map((src, idx) => {
               const isFourth = idx === 3
               return (
-                <div
+                <button
                   key={idx}
-                  className="relative h-full w-full cursor-pointer group overflow-hidden"
-                  onClick={() => openLightbox(idx)}
+                  type="button"
+                  className="relative h-full w-full cursor-pointer group overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  onClick={() => setLightboxIndex(idx)}
+                  aria-label={`View attachment ${idx + 1} of ${count}`}
                 >
                   {failedImages[idx] ? (
                     <div className="flex size-full flex-col items-center justify-center bg-muted/40 text-muted-foreground gap-2">
@@ -202,84 +180,21 @@ export function PostAttachments({ attachments = [], postTitle }: PostAttachments
                       +{remainingCount}
                     </div>
                   )}
-                </div>
+                </button>
               )
             })}
           </div>
         )}
       </div>
 
-      {/* Lightbox Modal */}
-      {lightboxIndex !== null && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Image preview"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md animate-in fade-in duration-150"
-          onClick={closeLightbox}
-        >
-          {/* Close button */}
-          <button
-            type="button"
-            className="absolute top-4 right-4 z-50 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer min-h-11 min-w-11 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            onClick={closeLightbox}
-            aria-label="Close image preview"
-          >
-            <X className="size-6" />
-          </button>
-
-          {/* Left Arrow */}
-          {count > 1 && (
-            <button
-              type="button"
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer min-h-11 min-w-11 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              onClick={(e) => {
-                e.stopPropagation()
-                prevImage()
-              }}
-              aria-label="Previous image"
-            >
-              <ChevronLeft className="size-6" />
-            </button>
-          )}
-
-          {/* Right Arrow */}
-          {count > 1 && (
-            <button
-              type="button"
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer min-h-11 min-w-11 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              onClick={(e) => {
-                e.stopPropagation()
-                nextImage()
-              }}
-              aria-label="Next image"
-            >
-              <ChevronRight className="size-6" />
-            </button>
-          )}
-
-          {/* Active Image */}
-          <div
-            className="relative max-w-4xl max-h-[85vh] w-[90vw] h-[75vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Image
-              src={resolveMediaUrl(attachments[lightboxIndex])}
-              alt={`Full view ${lightboxIndex + 1}`}
-              fill
-              unoptimized
-              className="object-contain"
-              sizes="90vw"
-              priority
-            />
-          </div>
-
-          {/* Image index indicator */}
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/60 text-white/90 text-xs font-semibold">
-            {lightboxIndex + 1} / {count}
-          </div>
-        </div>
-      )}
+      {/* Shared Accessible Lightbox Modal */}
+      <ImageLightbox
+        images={attachments}
+        activeIndex={lightboxIndex}
+        onClose={() => setLightboxIndex(null)}
+        onChangeIndex={setLightboxIndex}
+        title={postTitle || "Post attachment"}
+      />
     </>
   )
 }

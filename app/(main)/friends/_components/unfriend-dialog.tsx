@@ -27,7 +27,8 @@ export function UnfriendDialog({
 }: UnfriendDialogProps) {
   const { mutate: unfriend, isPending } = useUnfriend()
 
-  const handleConfirm = () => {
+  const handleConfirm = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
     unfriend(friendId, {
       onSuccess: () => onOpenChange(false),
     })

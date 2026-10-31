@@ -27,6 +27,7 @@ interface CommentComposerProps {
 
 const MAX_ATTACHMENTS = 2
 const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024 // 2 MB
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/jpg", "image/webp"]
 
 interface FileItem {
   file: File
@@ -85,8 +86,8 @@ export function CommentComposer({
 
     const validItems: FileItem[] = []
     for (const f of incomingFiles) {
-      if (!f.type.startsWith("image/")) {
-        toast.error(`"${f.name}" is not an image file.`)
+      if (!ALLOWED_IMAGE_TYPES.includes(f.type)) {
+        toast.error(`"${f.name}" must be a JPEG, PNG, or WebP image.`)
         continue
       }
       if (f.size > MAX_FILE_SIZE_BYTES) {

@@ -31,15 +31,15 @@ import { formatRelativeTime } from "@/lib/utils/date"
 
 interface PostCardHeaderProps {
   post: IPost
-  isAuthor: boolean
-  onEditClick: () => void
-  onDeleteClick: () => void
+  isAuthor?: boolean
+  onEditClick?: () => void
+  onDeleteClick?: () => void
   onShareClick: () => void
 }
 
 export function PostCardHeader({
   post,
-  isAuthor,
+  isAuthor = false,
   onEditClick,
   onDeleteClick,
   onShareClick,
@@ -158,20 +158,24 @@ export function PostCardHeader({
             </DropdownMenuItem>
           )}
 
-          {isAuthor && (
+          {isAuthor && (onEditClick || onDeleteClick) && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={onEditClick} className="cursor-pointer">
-                <Pencil className="size-4 mr-2" />
-                <span>Edit post</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={onDeleteClick}
-                className="cursor-pointer text-destructive focus:text-destructive"
-              >
-                <Trash2 className="size-4 mr-2" />
-                <span>Delete post</span>
-              </DropdownMenuItem>
+              {onEditClick && (
+                <DropdownMenuItem onClick={onEditClick} className="cursor-pointer">
+                  <Pencil className="size-4 mr-2" />
+                  <span>Edit post</span>
+                </DropdownMenuItem>
+              )}
+              {onDeleteClick && (
+                <DropdownMenuItem
+                  onClick={onDeleteClick}
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="size-4 mr-2" />
+                  <span>Delete post</span>
+                </DropdownMenuItem>
+              )}
             </>
           )}
         </DropdownMenuContent>

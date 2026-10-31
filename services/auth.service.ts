@@ -1,6 +1,5 @@
 import { api } from "@/lib/api/client"
 import {
-  ChangePasswordDto,
   ConfirmEmailDto,
   ForgotPasswordDto,
   IUser,
@@ -94,11 +93,5 @@ export const authService = {
     api<void>("/user/logout", {
       method: "POST",
       body: JSON.stringify({ flag }),
-    }),
-
-  changePassword: (data: ChangePasswordDto) =>
-    api<{ access_token: string; refresh_token: string }>("/user/change-password", {
-      method: "PATCH",
-      body: JSON.stringify(data),
     }),
 }

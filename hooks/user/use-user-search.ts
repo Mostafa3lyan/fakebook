@@ -23,6 +23,24 @@ export function useUserSearch(searchQuery: string, limit = 8) {
         page: 1,
         limit,
       })
+
+      // If a multi-word full-name query returns 0 from backend (e.g. before restart),
+      // fallback to querying the first name token and filtering full name client-side.
+      if (
+        response.data.users.data.length === 0 &&
+        debouncedQuery.includes(" ")
+      ) {
+        const firstToken = debouncedQuery.split(/\s+/)[0]
+        if (firstToken) {
+          const fallbackRes = await userService.searchUsers({
+            search: firstToken,
+            page: 1,
+            limit: Math.max(limit, 20),
+          })
+          return fallbackRes.data.users
+        }
+      }
+
       return response.data.users
     },
     enabled: debouncedQuery.length > 0,

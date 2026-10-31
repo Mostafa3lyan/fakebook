@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { FriendsContainer } from "./_components/friends-container"
 
 export const metadata: Metadata = {
-  title: "Friends | Fakebook",
+  title: "Friends",
   description: "Manage your friends, sent and received connection requests on Fakebook.",
 }
 

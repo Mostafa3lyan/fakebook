@@ -27,7 +27,8 @@ export function BlockUserDialog({
 }: BlockUserDialogProps) {
   const { mutate: blockUser, isPending } = useBlockUser()
 
-  const handleConfirm = () => {
+  const handleConfirm = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
     blockUser(userId, {
       onSuccess: () => onOpenChange(false),
     })

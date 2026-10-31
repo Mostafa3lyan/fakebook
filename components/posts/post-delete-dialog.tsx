@@ -25,7 +25,8 @@ export function PostDeleteDialog({
 }: PostDeleteDialogProps) {
   const { mutate: deletePost, isPending: isDeleting } = useDeletePost()
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
     deletePost(
       { postId, isHardDelete: false },
       {
