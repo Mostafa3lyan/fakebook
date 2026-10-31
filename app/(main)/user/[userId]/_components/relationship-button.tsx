@@ -15,11 +15,7 @@ import {
 import { IPublicUser } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { useCurrentUser } from "@/hooks/user/use-current-user"
-import { useFriends } from "@/hooks/friends/use-friends"
-import {
-  useReceivedFriendRequests,
-  useSentFriendRequests,
-} from "@/hooks/friends/use-friend-requests"
+import { useFriendshipStatus } from "@/hooks/friends/use-friendship-status"
 import {
   useAcceptFriendRequest,
   useCancelFriendRequest,
@@ -34,11 +30,13 @@ interface RelationshipButtonProps {
 export function RelationshipButton({ targetUser }: RelationshipButtonProps) {
   const [showUnfriendModal, setShowUnfriendModal] = React.useState(false)
   const { user: currentUser } = useCurrentUser()
-  const { friends, isLoading: isLoadingFriends } = useFriends()
-  const { requests: receivedRequests, isLoading: isLoadingReceived } =
-    useReceivedFriendRequests()
-  const { requests: sentRequests, isLoading: isLoadingSent } =
-    useSentFriendRequests()
+  const isSelf = currentUser?._id === targetUser._id
+
+  const {
+    relationshipStatus,
+    requestId,
+    isLoading,
+  } = useFriendshipStatus(targetUser._id, !isSelf)
 
   const { mutate: sendRequest, isPending: isSending } = useSendFriendRequest()
   const { mutate: acceptRequest, isPending: isAccepting } =
@@ -48,24 +46,13 @@ export function RelationshipButton({ targetUser }: RelationshipButtonProps) {
   const { mutate: cancelRequest, isPending: isCancelling } =
     useCancelFriendRequest()
 
-  const isSelf = currentUser?._id === targetUser._id
-  const isFriend = friends.some((f) => f._id === targetUser._id)
-  const receivedRequest = receivedRequests.find(
-    (r) => r.sender._id === targetUser._id
-  )
-  const sentRequest = sentRequests.find(
-    (r) => r.receiver._id === targetUser._id
-  )
-
-  const isLoading =
-    isLoadingFriends || isLoadingReceived || isLoadingSent
   const isPending = isSending || isAccepting || isRejecting || isCancelling
 
   const fullName =
     targetUser.fullName || `${targetUser.firstName} ${targetUser.lastName}`
 
   // 1. Viewing own profile
-  if (isSelf) {
+  if (isSelf || relationshipStatus === "self") {
     return (
       <Button asChild size="sm" variant="outline" className="min-h-11 font-medium w-full sm:w-auto">
         <Link href="/settings">
@@ -87,7 +74,7 @@ export function RelationshipButton({ targetUser }: RelationshipButtonProps) {
   }
 
   // 2. Already friends
-  if (isFriend) {
+  if (relationshipStatus === "friends") {
     return (
       <>
         <Button
@@ -115,13 +102,13 @@ export function RelationshipButton({ targetUser }: RelationshipButtonProps) {
   }
 
   // 3. Received request from this user
-  if (receivedRequest) {
+  if (relationshipStatus === "pending_received" && requestId) {
     return (
       <div className="flex items-center gap-2 w-full sm:w-auto">
         <Button
           variant="default"
           size="sm"
-          onClick={() => acceptRequest(receivedRequest._id)}
+          onClick={() => acceptRequest(requestId)}
           disabled={isPending}
           className="flex-1 sm:flex-none min-h-11 font-medium"
           aria-label={`Confirm friend request from ${fullName}`}
@@ -132,7 +119,7 @@ export function RelationshipButton({ targetUser }: RelationshipButtonProps) {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => rejectRequest(receivedRequest._id)}
+          onClick={() => rejectRequest(requestId)}
           disabled={isPending}
           className="flex-1 sm:flex-none text-muted-foreground hover:text-destructive hover:bg-destructive/10 min-h-11"
           aria-label={`Delete friend request from ${fullName}`}
@@ -145,12 +132,12 @@ export function RelationshipButton({ targetUser }: RelationshipButtonProps) {
   }
 
   // 4. Sent request to this user
-  if (sentRequest) {
+  if (relationshipStatus === "pending_sent" && requestId) {
     return (
       <Button
         variant="outline"
         size="sm"
-        onClick={() => cancelRequest(sentRequest._id)}
+        onClick={() => cancelRequest(requestId)}
         disabled={isPending}
         className="min-h-11 font-medium w-full sm:w-auto text-muted-foreground hover:text-foreground"
         aria-label={`Cancel friend request to ${fullName}`}

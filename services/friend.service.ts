@@ -3,6 +3,7 @@ import {
   FriendListParams,
   FriendListResponseData,
   FriendReceivedRequestsResponseData,
+  FriendRelationshipStatusResponseData,
   FriendRequestsParams,
   FriendSentRequestsResponseData,
   SendFriendRequestResponseData,
@@ -10,7 +11,7 @@ import {
 
 export const friendService = {
   getFriends: (params?: FriendListParams) =>
-    api<FriendListResponseData>("/friends/list", {
+    api<FriendListResponseData>("/friends", {
       method: "GET",
       params,
     }),
@@ -27,6 +28,14 @@ export const friendService = {
       params,
     }),
 
+  getRelationshipStatus: (targetUserId: string) =>
+    api<FriendRelationshipStatusResponseData>(
+      `/friends/status/${targetUserId}`,
+      {
+        method: "GET",
+      }
+    ),
+
   sendRequest: (receiverId: string) =>
     api<SendFriendRequestResponseData>(`/friends/request/${receiverId}`, {
       method: "POST",
@@ -39,7 +48,7 @@ export const friendService = {
 
   rejectRequest: (requestId: string) =>
     api<void>(`/friends/reject/${requestId}`, {
-      method: "DELETE",
+      method: "PATCH",
     }),
 
   cancelRequest: (requestId: string) =>

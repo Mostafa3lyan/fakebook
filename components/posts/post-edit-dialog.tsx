@@ -161,19 +161,16 @@ function PostEditForm({
     e.preventDefault()
 
     const trimmedContent = content.trim()
-    if (isSharedPost && !trimmedContent) {
-      toast.error("Shared post must have some text content.")
-      return
-    }
-
     if (!isSharedPost && !trimmedContent && totalAttachmentCount === 0) {
       toast.error("Post must have either text content or at least one photo.")
       return
     }
 
-    let locationObj: IPostLocation | undefined = undefined
+    let locationObj: IPostLocation | null | undefined = undefined
     if (locationName) {
       locationObj = { name: locationName }
+    } else if (post.location?.name) {
+      locationObj = null
     }
 
     updatePost(
@@ -203,7 +200,7 @@ function PostEditForm({
   const authorName =
     post.createdBy.fullName || `${post.createdBy.firstName} ${post.createdBy.lastName}`
   const canSubmit = isSharedPost
-    ? content.trim().length > 0 && !isPending
+    ? !isPending
     : (content.trim().length > 0 || totalAttachmentCount > 0) && !isPending
 
   return (

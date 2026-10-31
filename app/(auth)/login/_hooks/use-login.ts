@@ -27,6 +27,18 @@ export function useLogin(options?: UseLoginOptions) {
       router.push(destination)
       router.refresh()
     },
+    onError: (err, variables) => {
+      const status = (err as { status?: number })?.status
+      const message =
+        (err as { message?: string })?.message?.toLowerCase() ?? ""
+
+      if (status === 403 || message.includes("not confirmed")) {
+        toast.info("Please verify your email address to continue.")
+        router.push(
+          `/confirm-signup-email?email=${encodeURIComponent(variables.email)}`
+        )
+      }
+    },
   })
 
   return {

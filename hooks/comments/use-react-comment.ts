@@ -84,6 +84,33 @@ export function useReactComment() {
 
       return { previousData, targetQueryKey }
     },
+    onSuccess: ({ commentId, updatedComment }, variables) => {
+      const targetQueryKey = variables.parentCommentId
+        ? ["replies", variables.postId, variables.parentCommentId]
+        : ["comments", variables.postId]
+
+      queryClient.setQueryData<InfiniteData<PaginatedResult<IComment>>>(
+        targetQueryKey,
+        (oldData) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: page.data.map((c) => {
+                if (c._id !== commentId) return c
+                return {
+                  ...c,
+                  reactionsCount: updatedComment.reactionsCount,
+                  reactionsBreakdown: updatedComment.reactionsBreakdown,
+                }
+              }),
+            })),
+          }
+        }
+      )
+    },
     onError: (err, _vars, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(context.targetQueryKey, context.previousData)

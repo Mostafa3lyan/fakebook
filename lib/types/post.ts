@@ -52,7 +52,7 @@ export interface UpdatePostPayload {
   content?: string
   visibility?: PostVisibilityEnum
   tags?: string[]
-  location?: IPostLocation
+  location?: IPostLocation | null
   removeAttachments?: string[]
   files?: File[]
 }

@@ -44,7 +44,7 @@ export function SentRequestsTab() {
             />
           ))}
         </div>
-      ) : requests.length === 0 ? (
+      ) : requests.filter((r) => Boolean(r.receiver)).length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center rounded-xl border border-dashed border-border bg-card/50">
           <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-3">
             <Send className="size-6" aria-hidden="true" />
@@ -58,15 +58,17 @@ export function SentRequestsTab() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {requests.map((request) => (
-            <FriendRequestCard
-              key={request._id}
-              type="sent"
-              requestId={request._id}
-              createdAt={request.createdAt}
-              user={request.receiver}
-            />
-          ))}
+          {requests
+            .filter((request) => Boolean(request.receiver))
+            .map((request) => (
+              <FriendRequestCard
+                key={request._id}
+                type="sent"
+                requestId={request._id}
+                createdAt={request.createdAt}
+                user={request.receiver}
+              />
+            ))}
         </div>
       )}
 

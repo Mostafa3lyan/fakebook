@@ -65,3 +65,19 @@ export interface SendFriendRequestResponseData {
     createdAt: string
   }
 }
+
+export type FriendshipStatusType =
+  | "self"
+  | "friends"
+  | "pending_sent"
+  | "pending_received"
+  | "none"
+
+export interface IFriendshipStatus {
+  status: FriendshipStatusType
+  requestId?: string
+}
+
+export interface FriendRelationshipStatusResponseData {
+  status: IFriendshipStatus
+}

@@ -98,7 +98,7 @@ export function CommentEditForm({
         commentId: comment._id,
         parentCommentId,
         payload: {
-          content: trimmed || undefined,
+          content: trimmed,
           removeAttachments:
             removedAttachments.length > 0 ? removedAttachments : undefined,
           files: newFiles.length > 0 ? newFiles.map((n) => n.file) : undefined,

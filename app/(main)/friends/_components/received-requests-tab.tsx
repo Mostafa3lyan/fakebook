@@ -44,7 +44,7 @@ export function ReceivedRequestsTab() {
             />
           ))}
         </div>
-      ) : requests.length === 0 ? (
+      ) : requests.filter((r) => Boolean(r.sender)).length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center rounded-xl border border-dashed border-border bg-card/50">
           <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-3">
             <UserCheck className="size-6" aria-hidden="true" />
@@ -58,15 +58,17 @@ export function ReceivedRequestsTab() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {requests.map((request) => (
-            <FriendRequestCard
-              key={request._id}
-              type="received"
-              requestId={request._id}
-              createdAt={request.createdAt}
-              user={request.sender}
-            />
-          ))}
+          {requests
+            .filter((request) => Boolean(request.sender))
+            .map((request) => (
+              <FriendRequestCard
+                key={request._id}
+                type="received"
+                requestId={request._id}
+                createdAt={request.createdAt}
+                user={request.sender}
+              />
+            ))}
         </div>
       )}
 
