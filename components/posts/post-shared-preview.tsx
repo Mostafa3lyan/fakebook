@@ -33,7 +33,7 @@ export function PostSharedPreview({ sharedFrom }: PostSharedPreviewProps) {
       : originalAuthor?.firstName) ||
     "User"
 
-  const origLink = originalAuthor?._id ? `/user/${originalAuthor._id}` : "#"
+  const origLink = originalAuthor?._id ? `/profile/${originalAuthor._id}` : "#"
 
   if (!originalPost) {
     return (

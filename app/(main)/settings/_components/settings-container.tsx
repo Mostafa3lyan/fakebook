@@ -1,14 +1,13 @@
 "use client"
 
-import { useCurrentUser } from "@/hooks/user/use-current-user"
-import { AvatarSettings } from "./avatar-settings"
-import { EditProfileForm } from "./edit-profile-form"
-import { ChangePasswordForm } from "./change-password-form"
-import { TwoFactorSettings } from "./two-factor-settings"
-import { BlockedUsersList } from "./blocked-users-list"
-import { DangerZone } from "./danger-zone"
-import { Skeleton } from "@/components/ui/skeleton"
 import { ErrorComponent } from "@/components/shared/error-component"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useCurrentUser } from "@/hooks/user/use-current-user"
+import { BlockedUsersList } from "./blocked-users-list"
+import { ChangePasswordForm } from "./change-password-form"
+import { DangerZone } from "./danger-zone"
+import { EditProfileForm } from "./edit-profile-form"
+import { TwoFactorSettings } from "./two-factor-settings"
 
 export function SettingsContainer() {
   const { user, isLoading, isError, error } = useCurrentUser()
@@ -36,7 +35,6 @@ export function SettingsContainer() {
 
   return (
     <div className="space-y-6">
-      <AvatarSettings user={user} />
       <EditProfileForm user={user} />
       <ChangePasswordForm />
       <TwoFactorSettings user={user} />

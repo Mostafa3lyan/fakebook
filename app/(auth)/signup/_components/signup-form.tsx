@@ -19,6 +19,7 @@ import {
 import { PasswordInput } from "@/components/shared/password-input"
 import { AuthCard } from "@/components/shared/auth-card"
 import { ErrorComponent } from "@/components/shared/error-component"
+import { GoogleAuthButton } from "@/components/shared/google-auth-button"
 import { SignupSchema, SignupSchemaType } from "@/lib/schemas/auth.schema"
 import { GenderEnum } from "@/lib/types"
 import { useSignup } from "../_hooks/use-signup"
@@ -256,6 +257,9 @@ export function SignupForm() {
             </>
           )}
         </Button>
+
+        {/* Google OAuth Sign Up */}
+        <GoogleAuthButton mode="signup" disabled={isPending} />
       </form>
     </AuthCard>
   )

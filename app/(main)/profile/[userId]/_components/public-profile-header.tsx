@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { redirect, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, Eye, MoreHorizontal, ShieldBan } from "lucide-react"
 
 import { IPublicUser } from "@/lib/types"
@@ -15,6 +15,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useCurrentUser } from "@/hooks/user/use-current-user"
+import { ProfileCoverBanner } from "@/app/(main)/profile/_components/profile-cover-banner"
+import { ImageLightbox } from "@/components/shared/image-lightbox"
 import { RelationshipButton } from "./relationship-button"
 import { BlockUserDialog } from "./block-user-dialog"
 
@@ -26,12 +28,19 @@ export function PublicProfileHeader({ user }: PublicProfileHeaderProps) {
   const router = useRouter()
   const { user: currentUser } = useCurrentUser()
   const [showBlockDialog, setShowBlockDialog] = React.useState(false)
+  const [avatarPreviewOpen, setAvatarPreviewOpen] = React.useState(false)
 
   const fullName = user.fullName || `${user.firstName} ${user.lastName}`
   const isSelf = currentUser?._id === user._id
 
+  React.useEffect(() => {
+    if (isSelf) {
+      router.replace("/profile")
+    }
+  }, [isSelf, router])
+
   if (isSelf) {
-    return redirect("/profile")
+    return null
   }
 
   return (
@@ -48,17 +57,35 @@ export function PublicProfileHeader({ user }: PublicProfileHeaderProps) {
       </Button>
 
       <Card className="border-border shadow-md overflow-hidden">
-        {/* Banner */}
-        <div className="h-32 bg-linear-to-r from-primary to-blue-600 relative" />
+        {/* Cover photo banner */}
+        <ProfileCoverBanner
+          coverImage={user.profileCoverPictures?.[0]}
+          ownerName={fullName}
+        />
 
         <CardContent className="px-6 pb-6 pt-0 relative">
           <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between -mt-14 sm:-mt-16 gap-4">
             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
-              <UserAvatar
-                user={user}
-                size="xl"
-                className="size-28 sm:size-32 border-4 border-card shadow-md"
-              />
+              {user.profilePicture ? (
+                <button
+                  type="button"
+                  onClick={() => setAvatarPreviewOpen(true)}
+                  className="group relative block rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-zoom-in"
+                  aria-label={`View ${fullName}'s profile picture`}
+                >
+                  <UserAvatar
+                    user={user}
+                    size="xl"
+                    className="size-28 sm:size-32 border-4 border-card shadow-md transition-opacity group-hover:opacity-90"
+                  />
+                </button>
+              ) : (
+                <UserAvatar
+                  user={user}
+                  size="xl"
+                  className="size-28 sm:size-32 border-4 border-card shadow-md"
+                />
+              )}
               <div className="space-y-1 mb-1">
                 <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-foreground tracking-tight">
                   {fullName}
@@ -110,6 +137,17 @@ export function PublicProfileHeader({ user }: PublicProfileHeaderProps) {
           userName={fullName}
           open={showBlockDialog}
           onOpenChange={setShowBlockDialog}
+        />
+      )}
+
+      {/* Profile picture lightbox preview */}
+      {user.profilePicture && (
+        <ImageLightbox
+          images={[user.profilePicture]}
+          activeIndex={avatarPreviewOpen ? 0 : null}
+          onClose={() => setAvatarPreviewOpen(false)}
+          onChangeIndex={() => {}}
+          title={`${fullName}'s profile picture`}
         />
       )}
     </div>

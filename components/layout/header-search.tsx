@@ -141,7 +141,7 @@ export function HeaderSearch({
                 return (
                   <Link
                     key={userItem._id}
-                    href={`/user/${userItem._id}`}
+                    href={`/profile/${userItem._id}`}
                     role="option"
                     aria-selected="false"
                     onClick={handleSelect}

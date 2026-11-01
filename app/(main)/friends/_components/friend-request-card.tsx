@@ -52,7 +52,7 @@ export function FriendRequestCard(props: FriendRequestCardProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-xl border border-border bg-card hover:bg-card/90 transition-shadow shadow-xs gap-3">
       <Link
-        href={`/user/${user._id}`}
+        href={`/profile/${user._id}`}
         className="flex items-center gap-3 min-w-0 flex-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg p-1"
       >
         <UserAvatar

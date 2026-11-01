@@ -50,8 +50,8 @@ export function LeftSidebar() {
         {links.map((link) => {
           const Icon = link.icon
           const isActive =
-            link.href === "/"
-              ? pathname === "/"
+            link.href === "/" || link.href === "/profile"
+              ? pathname === link.href
               : pathname.startsWith(link.href)
 
           return (

@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/shared/password-input"
 import { AuthCard } from "@/components/shared/auth-card"
 import { ErrorComponent } from "@/components/shared/error-component"
+import { GoogleAuthButton } from "@/components/shared/google-auth-button"
 import { LoginSchema, LoginSchemaType } from "@/lib/schemas/auth.schema"
 import { useLogin } from "../_hooks/use-login"
 import { TwoFactorDialog } from "./two-factor-dialog"
@@ -142,6 +143,9 @@ export function LoginForm() {
               </>
             )}
           </Button>
+
+          {/* Google OAuth Sign In */}
+          <GoogleAuthButton mode="signin" disabled={isPending} />
         </form>
       </AuthCard>
 

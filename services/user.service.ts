@@ -6,6 +6,8 @@ import {
   IPagination,
   IPublicUser,
   IUser,
+  PresignedImageUploadDto,
+  PresignedImageUploadResponse,
   RestoreAccountDto,
   SearchUsersParams,
   UpdateProfileDto,
@@ -28,14 +30,25 @@ export const userService = {
       method: "GET",
     }),
 
-  requestProfileImageUpload: (data: { contentType: string; originalname: string }) =>
-    api<{ user: IUser; url: string }>("/user/profile-image", {
+  requestProfileImageUpload: (data: PresignedImageUploadDto) =>
+    api<PresignedImageUploadResponse>("/user/profile-image", {
       method: "PATCH",
       body: JSON.stringify(data),
     }),
 
   removeProfileImage: () =>
-    api<void>("/user/remove-profile-image", {
+    api<{ user: IUser }>("/user/remove-profile-image", {
+      method: "DELETE",
+    }),
+
+  requestCoverImageUpload: (data: PresignedImageUploadDto) =>
+    api<PresignedImageUploadResponse>("/user/profile-cover-image", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  removeCoverImage: () =>
+    api<{ user: IUser }>("/user/remove-profile-cover-image", {
       method: "DELETE",
     }),
 

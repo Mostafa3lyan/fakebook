@@ -47,7 +47,7 @@ export function CommentItem({
     comment.createdBy?.fullName ||
     `${comment.createdBy?.firstName ?? ""} ${comment.createdBy?.lastName ?? ""}`.trim() ||
     "User"
-  const authorProfileLink = commentCreatorId ? `/user/${commentCreatorId}` : "#"
+  const authorProfileLink = commentCreatorId ? `/profile/${commentCreatorId}` : "#"
 
   // Top reaction emojis breakdown calculation
   const topReactions = React.useMemo(() => {

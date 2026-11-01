@@ -28,7 +28,21 @@ export interface IPublicUser {
   lastName: string
   fullName?: string
   profilePicture?: string
+  profileCoverPictures?: string[]
   profileVisits?: number
+}
+
+/** Body for requesting an S3 pre-signed image upload URL */
+export interface PresignedImageUploadDto {
+  contentType: string
+  originalname: string
+}
+
+/** Response of `PATCH /user/profile-image` and `PATCH /user/profile-cover-image` */
+export interface PresignedImageUploadResponse {
+  user: IUser
+  url: string
+  key: string
 }
 
 export interface UpdateProfileDto {

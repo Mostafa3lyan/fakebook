@@ -48,7 +48,7 @@ export function PostCardHeader({
 
   const authorName =
     post.createdBy.fullName || `${post.createdBy.firstName} ${post.createdBy.lastName}`
-  const authorProfileLink = `/user/${post.createdBy._id}`
+  const authorProfileLink = `/profile/${post.createdBy._id}`
 
   const handleCopyLink = () => {
     const url = `${window.location.origin}/#post-${post._id}`
