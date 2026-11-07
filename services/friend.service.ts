@@ -16,6 +16,12 @@ export const friendService = {
       params,
     }),
 
+  getUserFriends: (userId: string, params?: FriendListParams) =>
+    api<FriendListResponseData>(`/friends/user/${userId}`, {
+      method: "GET",
+      params,
+    }),
+
   getReceivedRequests: (params?: FriendRequestsParams) =>
     api<FriendReceivedRequestsResponseData>("/friends/requests/received", {
       method: "GET",

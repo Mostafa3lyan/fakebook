@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Eye, MoreHorizontal, ShieldBan } from "lucide-react"
+import { ArrowLeft, Eye, MoreHorizontal, ShieldBan, Users } from "lucide-react"
 
 import { IPublicUser } from "@/lib/types"
 import { UserAvatar } from "@/components/shared/user-avatar"
@@ -17,6 +17,7 @@ import {
 import { useCurrentUser } from "@/hooks/user/use-current-user"
 import { ProfileCoverBanner } from "@/app/(main)/profile/_components/profile-cover-banner"
 import { ImageLightbox } from "@/components/shared/image-lightbox"
+import { useFriends } from "@/hooks/friends/use-friends"
 import { RelationshipButton } from "./relationship-button"
 import { BlockUserDialog } from "./block-user-dialog"
 
@@ -29,6 +30,8 @@ export function PublicProfileHeader({ user }: PublicProfileHeaderProps) {
   const { user: currentUser } = useCurrentUser()
   const [showBlockDialog, setShowBlockDialog] = React.useState(false)
   const [avatarPreviewOpen, setAvatarPreviewOpen] = React.useState(false)
+
+  const { total: friendsCount } = useFriends({ limit: 1 }, user._id)
 
   const fullName = user.fullName || `${user.firstName} ${user.lastName}`
   const isSelf = currentUser?._id === user._id
@@ -90,12 +93,18 @@ export function PublicProfileHeader({ user }: PublicProfileHeaderProps) {
                 <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-foreground tracking-tight">
                   {fullName}
                 </h1>
-                {user.profileVisits !== undefined && (
-                  <div className="flex items-center justify-center sm:justify-start gap-1 text-xs text-muted-foreground">
-                    <Eye className="size-3.5" aria-hidden="true" />
-                    <span>{user.profileVisits} views</span>
+                <div className="flex items-center justify-center sm:justify-start gap-3 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Users className="size-3.5" aria-hidden="true" />
+                    <span>{friendsCount} {friendsCount === 1 ? "friend" : "friends"}</span>
                   </div>
-                )}
+                  {user.profileVisits !== undefined && (
+                    <div className="flex items-center gap-1">
+                      <Eye className="size-3.5" aria-hidden="true" />
+                      <span>{user.profileVisits} views</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

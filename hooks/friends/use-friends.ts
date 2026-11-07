@@ -4,11 +4,13 @@ import { useQuery } from "@tanstack/react-query"
 import { friendService } from "@/services/friend.service"
 import { FriendListParams } from "@/lib/types"
 
-export function useFriends(params?: FriendListParams) {
+export function useFriends(params?: FriendListParams, userId?: string) {
   const query = useQuery({
-    queryKey: ["friends", params],
+    queryKey: userId ? ["friends", "user", userId, params] : ["friends", params],
     queryFn: async () => {
-      const response = await friendService.getFriends(params)
+      const response = userId
+        ? await friendService.getUserFriends(userId, params)
+        : await friendService.getFriends(params)
       return response.data.friends
     },
     staleTime: 1000 * 60 * 2, // 2 minutes

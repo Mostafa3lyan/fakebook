@@ -13,7 +13,7 @@ export function useSendFriendRequest() {
     },
     onSuccess: () => {
       toast.success("Friend request sent successfully")
-      queryClient.invalidateQueries({ queryKey: ["friend-requests", "sent"] })
+      queryClient.invalidateQueries({ queryKey: ["friend-requests"] })
       queryClient.invalidateQueries({ queryKey: ["friendship-status"] })
       queryClient.invalidateQueries({ queryKey: ["public-profile"] })
       queryClient.invalidateQueries({ queryKey: ["search-users"] })
@@ -38,6 +38,9 @@ export function useAcceptFriendRequest() {
       queryClient.invalidateQueries({ queryKey: ["friendship-status"] })
       queryClient.invalidateQueries({ queryKey: ["current-user"] })
       queryClient.invalidateQueries({ queryKey: ["public-profile"] })
+      queryClient.invalidateQueries({ queryKey: ["posts"] })
+      queryClient.invalidateQueries({ queryKey: ["notifications"] })
+      queryClient.invalidateQueries({ queryKey: ["unread-notifications-count"] })
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to accept friend request")
@@ -54,9 +57,11 @@ export function useRejectFriendRequest() {
     },
     onSuccess: () => {
       toast.success("Friend request removed")
-      queryClient.invalidateQueries({ queryKey: ["friend-requests", "received"] })
+      queryClient.invalidateQueries({ queryKey: ["friend-requests"] })
       queryClient.invalidateQueries({ queryKey: ["friendship-status"] })
       queryClient.invalidateQueries({ queryKey: ["public-profile"] })
+      queryClient.invalidateQueries({ queryKey: ["notifications"] })
+      queryClient.invalidateQueries({ queryKey: ["unread-notifications-count"] })
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to reject friend request")
@@ -73,7 +78,7 @@ export function useCancelFriendRequest() {
     },
     onSuccess: () => {
       toast.success("Friend request cancelled")
-      queryClient.invalidateQueries({ queryKey: ["friend-requests", "sent"] })
+      queryClient.invalidateQueries({ queryKey: ["friend-requests"] })
       queryClient.invalidateQueries({ queryKey: ["friendship-status"] })
       queryClient.invalidateQueries({ queryKey: ["public-profile"] })
     },
@@ -96,6 +101,8 @@ export function useUnfriend() {
       queryClient.invalidateQueries({ queryKey: ["friendship-status"] })
       queryClient.invalidateQueries({ queryKey: ["current-user"] })
       queryClient.invalidateQueries({ queryKey: ["public-profile"] })
+      queryClient.invalidateQueries({ queryKey: ["posts"] })
+      queryClient.invalidateQueries({ queryKey: ["friend-requests"] })
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to remove friend")

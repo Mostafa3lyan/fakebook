@@ -3,20 +3,23 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, User, Users, Settings, LogOut } from "lucide-react"
+import { Home, User, Users, Settings, LogOut, Bell } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { useCurrentUser } from "@/hooks/user/use-current-user"
 import { useLogout } from "@/hooks/user/use-logout"
+import { useUnreadNotificationsCount } from "@/hooks/notifications/use-notifications"
 import { Button } from "@/components/ui/button"
 
 export function LeftSidebar() {
   const pathname = usePathname()
   const { user } = useCurrentUser()
   const { logout, isLoggingOut } = useLogout()
+  const { unreadCount } = useUnreadNotificationsCount()
 
   const links = [
     { label: "News Feed", href: "/", icon: Home },
+    { label: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
     { label: "Friends", href: "/friends", icon: Users },
     { label: "My Profile", href: "/profile", icon: User },
     { label: "Settings & Privacy", href: "/settings", icon: Settings },
@@ -66,8 +69,13 @@ export function LeftSidebar() {
               )}
               aria-current={isActive ? "page" : undefined}
             >
-              <Icon className={cn("size-5", isActive ? "text-primary" : "text-muted-foreground")} aria-hidden="true" />
-              <span>{link.label}</span>
+              <Icon className={cn("size-5 shrink-0", isActive ? "text-primary" : "text-muted-foreground")} aria-hidden="true" />
+              <span className="flex-1">{link.label}</span>
+              {typeof link.badge === "number" && link.badge > 0 && (
+                <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold leading-none text-white bg-destructive rounded-full">
+                  {link.badge > 99 ? "99+" : link.badge}
+                </span>
+              )}
             </Link>
           )
         })}

@@ -102,14 +102,14 @@ export function RelationshipButton({ targetUser }: RelationshipButtonProps) {
   }
 
   // 3. Received request from this user
-  if (relationshipStatus === "pending_received" && requestId) {
+  if (relationshipStatus === "pending_received") {
     return (
       <div className="flex items-center gap-2 w-full sm:w-auto">
         <Button
           variant="default"
           size="sm"
-          onClick={() => acceptRequest(requestId)}
-          disabled={isPending}
+          onClick={() => requestId && acceptRequest(requestId)}
+          disabled={isPending || !requestId}
           className="flex-1 sm:flex-none min-h-11 font-medium"
           aria-label={`Confirm friend request from ${fullName}`}
         >
@@ -119,8 +119,8 @@ export function RelationshipButton({ targetUser }: RelationshipButtonProps) {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => rejectRequest(requestId)}
-          disabled={isPending}
+          onClick={() => requestId && rejectRequest(requestId)}
+          disabled={isPending || !requestId}
           className="flex-1 sm:flex-none text-muted-foreground hover:text-destructive hover:bg-destructive/10 min-h-11"
           aria-label={`Delete friend request from ${fullName}`}
         >
@@ -132,13 +132,13 @@ export function RelationshipButton({ targetUser }: RelationshipButtonProps) {
   }
 
   // 4. Sent request to this user
-  if (relationshipStatus === "pending_sent" && requestId) {
+  if (relationshipStatus === "pending_sent") {
     return (
       <Button
         variant="outline"
         size="sm"
-        onClick={() => cancelRequest(requestId)}
-        disabled={isPending}
+        onClick={() => requestId && cancelRequest(requestId)}
+        disabled={isPending || !requestId}
         className="min-h-11 font-medium w-full sm:w-auto text-muted-foreground hover:text-foreground"
         aria-label={`Cancel friend request to ${fullName}`}
       >
