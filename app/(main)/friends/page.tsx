@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import { FriendsContainer } from "./_components/friends-container"
 
@@ -18,7 +19,9 @@ export default function FriendsPage() {
         </p>
       </div>
 
-      <FriendsContainer />
+      <Suspense fallback={null}>
+        <FriendsContainer />
+      </Suspense>
     </div>
   )
 }

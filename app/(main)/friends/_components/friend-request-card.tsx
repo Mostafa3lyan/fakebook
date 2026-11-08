@@ -22,6 +22,7 @@ interface ReceivedRequestProps {
     lastName: string
     profilePicture?: string
   }
+  onAccepted?: () => void
 }
 
 interface SentRequestProps {
@@ -80,7 +81,10 @@ export function FriendRequestCard(props: FriendRequestCardProps) {
             <Button
               variant="default"
               size="sm"
-              onClick={() => acceptRequest(requestId)}
+              onClick={() => {
+                acceptRequest(requestId)
+                props.onAccepted?.()
+              }}
               disabled={isPending}
               className="flex-1 sm:flex-none min-h-9"
               aria-label={`Confirm friend request from ${fullName}`}

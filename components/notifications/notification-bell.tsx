@@ -53,7 +53,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
           variant="ghost"
           size="icon"
           className={cn(
-            "relative size-9 rounded-full min-h-11 min-w-11 text-foreground hover:bg-muted cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
+            "relative size-9 rounded-full min-h-11 min-w-11 text-foreground hover:bg-muted hover:text-primary cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
             open && "bg-muted text-primary",
             className
           )}
@@ -66,7 +66,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
           <Bell className="size-5" aria-hidden="true" />
           {unreadCount > 0 && (
             <span
-              className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center shadow-xs animate-in zoom-in-50"
+              className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 px-1 rounded-full bg-destructive text-white text-[10px] font-bold flex items-center justify-center shadow-xs animate-in zoom-in-50"
               aria-hidden="true"
             >
               {unreadCount > 9 ? "9+" : unreadCount}

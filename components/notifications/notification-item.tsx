@@ -24,17 +24,51 @@ interface NotificationItemProps {
   className?: string
 }
 
+function buildTargetHref(notification: INotification): string | null {
+  const { data } = notification
+  if (!data) return null
+
+  if (data.actionUrl && data.actionUrl !== "/friends") {
+    return data.actionUrl
+  }
+
+  const postId = data.postId || (data.entityType === "post" ? data.entityId : undefined)
+  const commentId = data.commentId || (data.entityType === "comment" ? data.entityId : undefined)
+  const parentCommentId = data.parentCommentId
+
+  if (postId) {
+    const params = new URLSearchParams()
+    params.set("postId", postId)
+    if (commentId) params.set("commentId", commentId)
+    if (parentCommentId) params.set("parentCommentId", parentCommentId)
+    return `/?${params.toString()}`
+  }
+
+  return data.actionUrl || null
+}
+
 function getNotificationMeta(notification: INotification) {
   const { message, data } = notification
   const entityType = data?.entityType
   const lower = message.toLowerCase()
+  const resolvedHref = buildTargetHref(notification)
 
   if (entityType === "friend_request" || lower.includes("friend request")) {
+    if (entityType === "friend_accept" || lower.includes("accepted your friend request")) {
+      return {
+        icon: UserCheck,
+        iconColor: "text-emerald-500 bg-emerald-500/10",
+        badgeColor: "bg-emerald-600 text-white",
+        href: resolvedHref || (data?.actorId ? `/profile/${data.actorId}` : "/friends"),
+        label: "Friend request accepted",
+      }
+    }
+
     return {
       icon: UserPlus,
       iconColor: "text-blue-500 bg-blue-500/10",
       badgeColor: "bg-blue-600 text-white",
-      href: data?.actionUrl || "/friends",
+      href: resolvedHref || "/friends?tab=received",
       label: "Friend request",
     }
   }
@@ -44,7 +78,7 @@ function getNotificationMeta(notification: INotification) {
       icon: UserCheck,
       iconColor: "text-emerald-500 bg-emerald-500/10",
       badgeColor: "bg-emerald-600 text-white",
-      href: data?.actionUrl || (data?.actorId ? `/profile/${data.actorId}` : "/friends"),
+      href: resolvedHref || (data?.actorId ? `/profile/${data.actorId}` : "/friends"),
       label: "Friend request accepted",
     }
   }
@@ -54,7 +88,7 @@ function getNotificationMeta(notification: INotification) {
       icon: MessageCircle,
       iconColor: "text-emerald-500 bg-emerald-500/10",
       badgeColor: "bg-emerald-600 text-white",
-      href: data?.actionUrl || "/",
+      href: resolvedHref || "/",
       label: "Comment",
     }
   }
@@ -64,7 +98,7 @@ function getNotificationMeta(notification: INotification) {
       icon: Heart,
       iconColor: "text-rose-500 bg-rose-500/10",
       badgeColor: "bg-rose-600 text-white",
-      href: data?.actionUrl || "/",
+      href: resolvedHref || "/",
       label: "Reaction",
     }
   }
@@ -74,7 +108,7 @@ function getNotificationMeta(notification: INotification) {
       icon: Sparkles,
       iconColor: "text-purple-500 bg-purple-500/10",
       badgeColor: "bg-purple-600 text-white",
-      href: data?.actionUrl || "/",
+      href: resolvedHref || "/",
       label: "Post update",
     }
   }
@@ -83,7 +117,7 @@ function getNotificationMeta(notification: INotification) {
     icon: Bell,
     iconColor: "text-primary bg-primary/10",
     badgeColor: "bg-primary text-primary-foreground",
-    href: data?.actionUrl || "/",
+    href: resolvedHref || "/",
     label: "Notification",
   }
 }

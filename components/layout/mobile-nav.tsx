@@ -7,14 +7,16 @@ import { Home, User, Users, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { useCurrentUser } from "@/hooks/user/use-current-user"
+import { useFriendRequestsCount } from "@/hooks/friends/use-friend-requests-count"
 
 export function MobileNav() {
   const pathname = usePathname()
   const { user } = useCurrentUser()
+  const { count: friendRequestsCount } = useFriendRequestsCount()
 
   const navItems = [
     { label: "Home", href: "/", icon: Home },
-    { label: "Friends", href: "/friends", icon: Users },
+    { label: "Friends", href: "/friends", icon: Users, badge: friendRequestsCount },
     { label: "Profile", href: "/profile", icon: User },
     { label: "Settings", href: "/settings", icon: Settings },
   ]
@@ -49,6 +51,11 @@ export function MobileNav() {
                 <UserAvatar user={user} size="xs" className={cn(isActive && "ring-2 ring-primary")} />
               ) : (
                 <Icon className="size-5" aria-hidden="true" />
+              )}
+              {typeof item.badge === "number" && item.badge > 0 && (
+                <span className="absolute -top-1.5 -right-2.5 flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-destructive text-white text-[10px] font-extrabold leading-none shadow-xs pointer-events-none">
+                  {item.badge > 99 ? "99+" : item.badge}
+                </span>
               )}
             </div>
             <span className="mt-1 leading-none text-[11px]">{item.label}</span>

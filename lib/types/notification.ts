@@ -4,6 +4,7 @@ export interface NotificationPayloadData {
   entityId?: string
   postId?: string
   commentId?: string
+  parentCommentId?: string
   actorId?: string
   actorName?: string
   actorAvatar?: string | null

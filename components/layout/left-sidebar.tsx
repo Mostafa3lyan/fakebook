@@ -9,6 +9,7 @@ import { UserAvatar } from "@/components/shared/user-avatar"
 import { useCurrentUser } from "@/hooks/user/use-current-user"
 import { useLogout } from "@/hooks/user/use-logout"
 import { useUnreadNotificationsCount } from "@/hooks/notifications/use-notifications"
+import { useFriendRequestsCount } from "@/hooks/friends/use-friend-requests-count"
 import { Button } from "@/components/ui/button"
 
 export function LeftSidebar() {
@@ -16,11 +17,12 @@ export function LeftSidebar() {
   const { user } = useCurrentUser()
   const { logout, isLoggingOut } = useLogout()
   const { unreadCount } = useUnreadNotificationsCount()
+  const { count: friendRequestsCount } = useFriendRequestsCount()
 
   const links = [
     { label: "News Feed", href: "/", icon: Home },
     { label: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
-    { label: "Friends", href: "/friends", icon: Users },
+    { label: "Friends", href: "/friends", icon: Users, badge: friendRequestsCount },
     { label: "My Profile", href: "/profile", icon: User },
     { label: "Settings & Privacy", href: "/settings", icon: Settings },
   ]

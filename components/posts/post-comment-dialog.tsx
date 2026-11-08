@@ -21,12 +21,16 @@ interface PostCommentDialogProps {
   post: IPost
   open: boolean
   onOpenChange: (open: boolean) => void
+  highlightCommentId?: string
+  highlightParentCommentId?: string
 }
 
 export function PostCommentDialog({
   post,
   open,
   onOpenChange,
+  highlightCommentId,
+  highlightParentCommentId,
 }: PostCommentDialogProps) {
   const { user } = useCurrentUser()
   const [shareOpen, setShareOpen] = React.useState(false)
@@ -95,7 +99,9 @@ export function PostCommentDialog({
               postId={post._id}
               postAuthorId={postAuthorId}
               commentsCount={post.commentsCount}
-              autoFocusComposer={true}
+              autoFocusComposer={!highlightCommentId}
+              highlightCommentId={highlightCommentId}
+              highlightParentCommentId={highlightParentCommentId}
             />
           </div>
         </DialogContent>

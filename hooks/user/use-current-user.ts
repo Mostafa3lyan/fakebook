@@ -1,12 +1,21 @@
 "use client"
 
+import * as React from "react"
 import { useQuery } from "@tanstack/react-query"
 import { userService } from "@/services/user.service"
 import { IUser } from "@/lib/types"
 
 import { ApiError } from "@/lib/api/errors"
 
+const emptySubscribe = () => () => {}
+
 export function useCurrentUser() {
+  const isMounted = React.useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  )
+
   const query = useQuery({
     queryKey: ["current-user"],
     queryFn: async () => {
@@ -21,8 +30,8 @@ export function useCurrentUser() {
   })
 
   return {
-    user: query.data as IUser | undefined,
-    isLoading: query.isLoading,
+    user: isMounted ? (query.data as IUser | undefined) : undefined,
+    isLoading: !isMounted || query.isLoading,
     isFetching: query.isFetching,
     isError: query.isError,
     error: query.error,

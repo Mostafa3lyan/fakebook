@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button"
 import { useReceivedFriendRequests } from "@/hooks/friends/use-friend-requests"
 import { FriendRequestCard } from "./friend-request-card"
 
-export function ReceivedRequestsTab() {
+interface ReceivedRequestsTabProps {
+  onAccepted?: () => void
+}
+
+export function ReceivedRequestsTab({ onAccepted }: ReceivedRequestsTabProps = {}) {
   const [page, setPage] = React.useState(1)
 
   const {
@@ -67,6 +71,7 @@ export function ReceivedRequestsTab() {
                 requestId={request._id}
                 createdAt={request.createdAt}
                 user={request.sender}
+                onAccepted={onAccepted}
               />
             ))}
         </div>

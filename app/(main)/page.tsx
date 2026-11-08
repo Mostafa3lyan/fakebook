@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 
 import { PostComposerTrigger } from "@/components/posts"
@@ -13,7 +14,9 @@ export default function HomePage() {
     <div className="max-w-2xl mx-auto py-2 space-y-5">
       <h1 className="sr-only">News Feed</h1>
       <PostComposerTrigger />
-      <HomeFeedStream />
+      <Suspense fallback={null}>
+        <HomeFeedStream />
+      </Suspense>
     </div>
   )
 }

@@ -30,17 +30,19 @@ import { UserAvatar } from "@/components/shared/user-avatar"
 import { NotificationBell } from "@/components/notifications/notification-bell"
 import { useCurrentUser } from "@/hooks/user/use-current-user"
 import { useLogout } from "@/hooks/user/use-logout"
+import { useFriendRequestsCount } from "@/hooks/friends/use-friend-requests-count"
 import { HeaderSearch } from "./header-search"
 
 export function MainHeader() {
   const pathname = usePathname()
   const { user } = useCurrentUser()
   const { logout, isLoggingOut } = useLogout()
+  const { count: friendRequestsCount } = useFriendRequestsCount()
   const [isMobileSearchOpen, setIsMobileSearchOpen] = React.useState(false)
 
   const navItems = [
     { label: "Home", href: "/", icon: Home },
-    { label: "Friends", href: "/friends", icon: Users },
+    { label: "Friends", href: "/friends", icon: Users, badge: friendRequestsCount },
     { label: "Profile", href: "/profile", icon: User },
     { label: "Settings", href: "/settings", icon: Settings },
   ]
@@ -111,9 +113,18 @@ export function MainHeader() {
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
                 aria-current={isActive ? "page" : undefined}
-                aria-label={item.label}
+                aria-label={
+                  typeof item.badge === "number" && item.badge > 0
+                    ? `${item.label} (${item.badge} pending requests)`
+                    : item.label
+                }
               >
                 <Icon className="size-5" aria-hidden="true" />
+                {typeof item.badge === "number" && item.badge > 0 && (
+                  <span className="absolute top-1 right-2.5 flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-destructive text-white text-[10px] font-extrabold leading-none shadow-xs pointer-events-none">
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                )}
                 {isActive && (
                   <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full" />
                 )}

@@ -1,9 +1,11 @@
 "use client"
 
 import * as React from "react"
+import { useSearchParams } from "next/navigation"
 import { Users, UserCheck, Send } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useReceivedFriendRequests, useSentFriendRequests } from "@/hooks/friends/use-friend-requests"
+import { useFriendRequestsCount } from "@/hooks/friends/use-friend-requests-count"
 import { FriendsListTab } from "./friends-list-tab"
 import { ReceivedRequestsTab } from "./received-requests-tab"
 import { SentRequestsTab } from "./sent-requests-tab"
@@ -11,9 +13,25 @@ import { SentRequestsTab } from "./sent-requests-tab"
 type ActiveTab = "friends" | "received" | "sent"
 
 export function FriendsContainer() {
-  const [activeTab, setActiveTab] = React.useState<ActiveTab>("friends")
+  const searchParams = useSearchParams()
+  const tabParam = searchParams.get("tab")
 
-  const { total: receivedCount } = useReceivedFriendRequests({ limit: 1 })
+  const [activeTab, setActiveTab] = React.useState<ActiveTab>(() => {
+    if (tabParam === "received" || tabParam === "sent" || tabParam === "friends") {
+      return tabParam
+    }
+    return "friends"
+  })
+
+  React.useEffect(() => {
+    if (tabParam === "received" || tabParam === "sent" || tabParam === "friends") {
+      setActiveTab(tabParam)
+    }
+  }, [tabParam])
+
+  const { total: receivedQueryTotal } = useReceivedFriendRequests({ limit: 1 })
+  const { count: liveReceivedCount } = useFriendRequestsCount()
+  const receivedCount = liveReceivedCount || receivedQueryTotal
   const { total: sentCount } = useSentFriendRequests({ limit: 1 })
 
   const tabs = [
@@ -68,13 +86,15 @@ export function FriendsContainer() {
               {typeof tab.badge === "number" && tab.badge > 0 && (
                 <span
                   className={cn(
-                    "ml-1 px-1.5 py-0.2 rounded-full text-xs font-bold",
-                    isActive
-                      ? "bg-primary-foreground text-primary"
-                      : "bg-primary/10 text-primary"
+                    "ml-1 min-w-5 h-5 px-1.5 inline-flex items-center justify-center rounded-full text-xs font-bold leading-none",
+                    tab.id === "received"
+                      ? "bg-destructive text-white shadow-xs"
+                      : isActive
+                        ? "bg-primary-foreground text-primary"
+                        : "bg-primary/10 text-primary"
                   )}
                 >
-                  {tab.badge}
+                  {tab.badge > 99 ? "99+" : tab.badge}
                 </span>
               )}
             </button>
@@ -89,7 +109,9 @@ export function FriendsContainer() {
         aria-labelledby={`tab-${activeTab}`}
       >
         {activeTab === "friends" && <FriendsListTab />}
-        {activeTab === "received" && <ReceivedRequestsTab />}
+        {activeTab === "received" && (
+          <ReceivedRequestsTab onAccepted={() => setActiveTab("friends")} />
+        )}
         {activeTab === "sent" && <SentRequestsTab />}
       </div>
     </div>

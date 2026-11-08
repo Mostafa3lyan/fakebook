@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { notificationService } from "@/services/notification.service"
+import { useCurrentUser } from "@/hooks/user/use-current-user"
 import type { INotification, NotificationsData } from "@/lib/types"
 
 const NOTIFICATIONS_QUERY_KEY = ["notifications"] as const
@@ -14,14 +15,18 @@ interface UseNotificationsOptions {
 
 export function useNotifications({ limit = 20, enabled = true }: UseNotificationsOptions = {}) {
   const queryClient = useQueryClient()
+  const { user } = useCurrentUser()
+  const userId = user?._id ?? "anonymous"
+  const listKey = [...NOTIFICATIONS_QUERY_KEY, userId, limit] as const
+  const unreadKey = [...UNREAD_COUNT_QUERY_KEY, userId] as const
 
   const query = useQuery({
-    queryKey: [...NOTIFICATIONS_QUERY_KEY, limit],
+    queryKey: listKey,
     queryFn: async () => {
       const response = await notificationService.getNotifications({ limit })
       return response.data
     },
-    enabled,
+    enabled: enabled && Boolean(user?._id),
     staleTime: 1000 * 15, // 15 seconds
     refetchInterval: 1000 * 30, // Poll every 30 seconds for background in-app updates
     refetchOnWindowFocus: true,
@@ -33,9 +38,9 @@ export function useNotifications({ limit = 20, enabled = true }: UseNotification
       await notificationService.markAsRead(messageId)
     },
     onMutate: async (messageId) => {
-      await queryClient.cancelQueries({ queryKey: NOTIFICATIONS_QUERY_KEY })
+      await queryClient.cancelQueries({ queryKey: [...NOTIFICATIONS_QUERY_KEY, userId] })
 
-      const previousData = queryClient.getQueryData<NotificationsData>([...NOTIFICATIONS_QUERY_KEY, limit])
+      const previousData = queryClient.getQueryData<NotificationsData>(listKey)
 
       if (previousData) {
         let wasUnread = false
@@ -47,14 +52,14 @@ export function useNotifications({ limit = 20, enabled = true }: UseNotification
           return item
         })
 
-        queryClient.setQueryData<NotificationsData>([...NOTIFICATIONS_QUERY_KEY, limit], {
+        queryClient.setQueryData<NotificationsData>(listKey, {
           ...previousData,
           items: updatedItems,
           unreadCount: wasUnread ? Math.max(0, previousData.unreadCount - 1) : previousData.unreadCount,
         })
 
         if (wasUnread) {
-          queryClient.setQueryData<number>(UNREAD_COUNT_QUERY_KEY, (prev) =>
+          queryClient.setQueryData<number>(unreadKey, (prev) =>
             typeof prev === "number" ? Math.max(0, prev - 1) : 0,
           )
         }
@@ -64,12 +69,12 @@ export function useNotifications({ limit = 20, enabled = true }: UseNotification
     },
     onError: (_err, _messageId, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData([...NOTIFICATIONS_QUERY_KEY, limit], context.previousData)
+        queryClient.setQueryData(listKey, context.previousData)
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY })
-      queryClient.invalidateQueries({ queryKey: UNREAD_COUNT_QUERY_KEY })
+      queryClient.invalidateQueries({ queryKey: [...NOTIFICATIONS_QUERY_KEY, userId] })
+      queryClient.invalidateQueries({ queryKey: unreadKey })
     },
   })
 
@@ -79,9 +84,9 @@ export function useNotifications({ limit = 20, enabled = true }: UseNotification
       await notificationService.markAllAsRead()
     },
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: NOTIFICATIONS_QUERY_KEY })
+      await queryClient.cancelQueries({ queryKey: [...NOTIFICATIONS_QUERY_KEY, userId] })
 
-      const previousData = queryClient.getQueryData<NotificationsData>([...NOTIFICATIONS_QUERY_KEY, limit])
+      const previousData = queryClient.getQueryData<NotificationsData>(listKey)
 
       if (previousData) {
         const now = new Date().toISOString()
@@ -90,25 +95,25 @@ export function useNotifications({ limit = 20, enabled = true }: UseNotification
           readAt: item.readAt || now,
         }))
 
-        queryClient.setQueryData<NotificationsData>([...NOTIFICATIONS_QUERY_KEY, limit], {
+        queryClient.setQueryData<NotificationsData>(listKey, {
           ...previousData,
           items: updatedItems,
           unreadCount: 0,
         })
 
-        queryClient.setQueryData<number>(UNREAD_COUNT_QUERY_KEY, 0)
+        queryClient.setQueryData<number>(unreadKey, 0)
       }
 
       return { previousData }
     },
     onError: (_err, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData([...NOTIFICATIONS_QUERY_KEY, limit], context.previousData)
+        queryClient.setQueryData(listKey, context.previousData)
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY })
-      queryClient.invalidateQueries({ queryKey: UNREAD_COUNT_QUERY_KEY })
+      queryClient.invalidateQueries({ queryKey: [...NOTIFICATIONS_QUERY_KEY, userId] })
+      queryClient.invalidateQueries({ queryKey: unreadKey })
     },
   })
 
@@ -132,13 +137,16 @@ export function useNotifications({ limit = 20, enabled = true }: UseNotification
 }
 
 export function useUnreadNotificationsCount(enabled = true) {
+  const { user } = useCurrentUser()
+  const userId = user?._id ?? "anonymous"
+
   const query = useQuery({
-    queryKey: UNREAD_COUNT_QUERY_KEY,
+    queryKey: [...UNREAD_COUNT_QUERY_KEY, userId],
     queryFn: async () => {
       const response = await notificationService.getUnreadCount()
       return response.data.unreadCount
     },
-    enabled,
+    enabled: enabled && Boolean(user?._id),
     staleTime: 1000 * 15,
     refetchInterval: 1000 * 30,
     refetchOnWindowFocus: true,

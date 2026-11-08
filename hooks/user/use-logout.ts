@@ -8,6 +8,7 @@ import { notificationService } from "@/services/notification.service"
 import { ApiError } from "@/lib/api/errors"
 
 const FCM_TOKEN_STORAGE_KEY = "fakebook_fcm_token"
+const FCM_TOKEN_USER_KEY = "fakebook_fcm_user_id"
 
 export function useLogout() {
   const router = useRouter()
@@ -20,6 +21,7 @@ export function useLogout() {
       if (fcmToken) {
         await notificationService.unregisterFcmToken(fcmToken).catch(() => undefined)
         localStorage.removeItem(FCM_TOKEN_STORAGE_KEY)
+        localStorage.removeItem(FCM_TOKEN_USER_KEY)
       }
 
       // 2. Perform backend session logout

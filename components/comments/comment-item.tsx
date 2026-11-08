@@ -21,6 +21,8 @@ interface CommentItemProps {
   postAuthorId?: string
   isReply?: boolean
   parentCommentId?: string
+  highlightCommentId?: string
+  defaultExpandReplies?: boolean
 }
 
 export function CommentItem({
@@ -29,13 +31,29 @@ export function CommentItem({
   postAuthorId,
   isReply = false,
   parentCommentId,
+  highlightCommentId,
+  defaultExpandReplies = false,
 }: CommentItemProps) {
   const { user } = useCurrentUser()
 
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
   const [isEditing, setIsEditing] = React.useState(false)
-  const [showReplies, setShowReplies] = React.useState(false)
+  const [userExpandedReplies, setUserExpandedReplies] = React.useState(false)
   const [replyComposerOpen, setReplyComposerOpen] = React.useState(false)
+
+  const showReplies = userExpandedReplies || defaultExpandReplies
+
+  const isHighlighted = highlightCommentId === comment._id
+  const itemRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    if (isHighlighted && itemRef.current) {
+      const timer = setTimeout(() => {
+        itemRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+      }, 150)
+      return () => clearTimeout(timer)
+    }
+  }, [isHighlighted])
 
   const currentUserId = user?._id
   const commentCreatorId =
@@ -61,6 +79,7 @@ export function CommentItem({
 
   return (
     <div
+      ref={itemRef}
       id={`comment-${comment._id}`}
       className={`group/comment flex items-start gap-2 ${isReply ? "pt-1" : "pt-2"}`}
     >
@@ -87,7 +106,13 @@ export function CommentItem({
           />
         ) : (
           <div className="relative inline-block max-w-full">
-            <div className="rounded-2xl bg-muted/60 dark:bg-muted/40 px-3 py-2 text-xs sm:text-[13px] border border-border/40 inline-block max-w-full space-y-1">
+            <div
+              className={`rounded-2xl px-3 py-2 text-xs sm:text-[13px] border inline-block max-w-full space-y-1 transition-colors ${
+                isHighlighted
+                  ? "bg-primary/15 border-primary ring-2 ring-primary/30"
+                  : "bg-muted/60 dark:bg-muted/40 border-border/40"
+              }`}
+            >
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Link
                   href={authorProfileLink}
@@ -144,7 +169,7 @@ export function CommentItem({
             canDelete={canDelete}
             isReply={isReply}
             onReplyClick={() => {
-              setShowReplies(true)
+              setUserExpandedReplies(true)
               setReplyComposerOpen(true)
             }}
             onEditClick={() => setIsEditing(true)}
@@ -156,7 +181,7 @@ export function CommentItem({
         {!isReply && comment.repliesCount > 0 && !showReplies && (
           <button
             type="button"
-            onClick={() => setShowReplies(true)}
+            onClick={() => setUserExpandedReplies(true)}
             className="text-xs font-semibold text-primary hover:underline cursor-pointer flex items-center gap-1.5 pt-1 pl-2 min-h-11"
           >
             <MessageSquareReply className="size-3.5" />
@@ -173,6 +198,7 @@ export function CommentItem({
               postId={postId}
               commentId={comment._id}
               postAuthorId={postAuthorId}
+              highlightCommentId={highlightCommentId}
               renderReply={(reply) => (
                 <CommentItem
                   key={reply._id}
@@ -181,6 +207,7 @@ export function CommentItem({
                   postAuthorId={postAuthorId}
                   isReply={true}
                   parentCommentId={comment._id}
+                  highlightCommentId={highlightCommentId}
                 />
               )}
             />
