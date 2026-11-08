@@ -18,6 +18,8 @@ export interface ApiErrorCause {
   error?: ApiValidationErrorGroup[]
   code?: string
   field?: string
+  extensions?: Record<string, unknown>
+  details?: unknown
 }
 
 export interface ApiErrorResponse {

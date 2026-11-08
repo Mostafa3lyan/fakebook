@@ -22,6 +22,8 @@ export interface IUser {
   updatedAt: string
 }
 
+import { FriendshipStatusType } from "./friend"
+
 export interface IPublicUser {
   _id: string
   firstName: string
@@ -30,6 +32,11 @@ export interface IPublicUser {
   profilePicture?: string
   profileCoverPictures?: string[]
   profileVisits?: number
+  friendsCount?: number
+  friendshipStatus?: {
+    status: FriendshipStatusType
+    requestId?: string | null
+  }
 }
 
 /** Body for requesting an S3 pre-signed image upload URL */

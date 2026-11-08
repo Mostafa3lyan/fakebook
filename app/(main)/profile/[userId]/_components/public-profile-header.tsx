@@ -31,7 +31,10 @@ export function PublicProfileHeader({ user }: PublicProfileHeaderProps) {
   const [showBlockDialog, setShowBlockDialog] = React.useState(false)
   const [avatarPreviewOpen, setAvatarPreviewOpen] = React.useState(false)
 
-  const { total: friendsCount } = useFriends({ limit: 1 }, user._id)
+  const { total: friendsCount } = useFriends(
+    { limit: 1, initialTotal: user.friendsCount },
+    user._id
+  )
 
   const fullName = user.fullName || `${user.firstName} ${user.lastName}`
   const isSelf = currentUser?._id === user._id

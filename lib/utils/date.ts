@@ -29,6 +29,28 @@ export function formatRelativeTime(dateInput?: string | Date | null): string {
   }
 }
 
+export const formatTimeAgo = formatRelativeTime
+
+/**
+ * Format a date string or Date object into clock time (e.g., "10:30 AM").
+ */
+export function formatTime(dateInput?: string | Date | null): string {
+  if (!dateInput) return ""
+
+  try {
+    const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput
+    if (isNaN(date.getTime())) return ""
+
+    return date.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+  } catch {
+    return ""
+  }
+}
+
 /**
  * Format a date string or Date object into Month Day, Year (e.g., "October 25, 2026").
  */

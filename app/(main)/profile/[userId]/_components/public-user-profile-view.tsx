@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft, ShieldAlert } from "lucide-react"
 
-import { userService } from "@/services/user.service"
+import { profileGraphQLService } from "@/services/profile.graphql"
 import { PublicProfileHeader } from "./public-profile-header"
 import { PublicUserTimeline } from "./public-user-timeline"
 import { Button } from "@/components/ui/button"
@@ -18,8 +18,8 @@ export function PublicUserProfileView({ userId }: PublicUserProfileViewProps) {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["public-profile", userId],
     queryFn: async () => {
-      const response = await userService.shareProfile(userId)
-      return response.data.account
+      const response = await profileGraphQLService.getPublicProfile(userId)
+      return response.shareProfile
     },
     enabled: Boolean(userId),
     staleTime: 1000 * 60 * 2,

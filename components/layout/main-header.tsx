@@ -28,6 +28,7 @@ import {
 import { ThemeToggle } from "@/components/shared/theme-toggle"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { NotificationBell } from "@/components/notifications/notification-bell"
+import { MessengerNavButton } from "@/components/chat/messenger-nav-button"
 import { useCurrentUser } from "@/hooks/user/use-current-user"
 import { useLogout } from "@/hooks/user/use-logout"
 import { useFriendRequestsCount } from "@/hooks/friends/use-friend-requests-count"
@@ -135,6 +136,7 @@ export function MainHeader() {
 
         {/* Right: Actions, Theme Toggle & User Menu */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <MessengerNavButton />
           <NotificationBell />
           <ThemeToggle />
 

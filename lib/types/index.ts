@@ -6,3 +6,5 @@ export * from "./post"
 export * from "./comment"
 export * from "./friend"
 export * from "./notification"
+export * from "./chat"
+

@@ -59,8 +59,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     if (!userId) {
-      setSocket(null)
-      setIsConnected(false)
       return
     }
 
@@ -94,7 +92,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       },
     })
 
-    setSocket(socketInstance)
+    queueMicrotask(() => {
+      setSocket(socketInstance)
+    })
 
     socketInstance.on("connect", () => {
       setIsConnected(true)

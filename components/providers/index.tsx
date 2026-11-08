@@ -6,6 +6,8 @@ import { QueryProvider } from "./query-provider"
 import { SocketProvider } from "./socket-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
+import { ChatProvider } from "@/components/chat/chat-provider"
+import { ChatShell } from "@/components/chat/chat-shell"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -13,8 +15,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryProvider>
         <SocketProvider>
           <TooltipProvider delayDuration={200}>
-            {children}
-            <Toaster position="bottom-right" />
+            <ChatProvider>
+              {children}
+              <ChatShell />
+              <Toaster position="bottom-right" />
+            </ChatProvider>
           </TooltipProvider>
         </SocketProvider>
       </QueryProvider>

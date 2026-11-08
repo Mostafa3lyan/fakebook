@@ -22,12 +22,14 @@ export function FriendsContainer() {
     }
     return "friends"
   })
+  const [prevTabParam, setPrevTabParam] = React.useState(tabParam)
 
-  React.useEffect(() => {
+  if (tabParam !== prevTabParam) {
+    setPrevTabParam(tabParam)
     if (tabParam === "received" || tabParam === "sent" || tabParam === "friends") {
       setActiveTab(tabParam)
     }
-  }, [tabParam])
+  }
 
   const { total: receivedQueryTotal } = useReceivedFriendRequests({ limit: 1 })
   const { count: liveReceivedCount } = useFriendRequestsCount()

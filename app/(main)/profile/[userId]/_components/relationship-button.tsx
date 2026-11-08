@@ -36,7 +36,15 @@ export function RelationshipButton({ targetUser }: RelationshipButtonProps) {
     relationshipStatus,
     requestId,
     isLoading,
-  } = useFriendshipStatus(targetUser._id, !isSelf)
+  } = useFriendshipStatus(targetUser._id, {
+    enabled: !isSelf,
+    initialData: targetUser.friendshipStatus
+      ? {
+          status: targetUser.friendshipStatus.status,
+          requestId: targetUser.friendshipStatus.requestId,
+        }
+      : undefined,
+  })
 
   const { mutate: sendRequest, isPending: isSending } = useSendFriendRequest()
   const { mutate: acceptRequest, isPending: isAccepting } =
