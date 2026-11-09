@@ -25,7 +25,7 @@ interface ChatContextValue {
   activeChats: ActiveChat[]
   openChat: (conversationId: string, conversation?: IConversation) => void
   closeChat: (conversationId: string) => void
-  minimizeChat: (conversationId: string) => void
+  minimizeChat: (conversationId: string, conversation?: IConversation) => void
   restoreChat: (conversationId: string) => void
   isUserOnline: (userId?: string) => boolean
   getTypingUser: (conversationId: string) => TypingState | null
@@ -451,13 +451,22 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setActiveChats((prev) => prev.filter((c) => c.conversationId !== conversationId))
   }, [])
 
-  const minimizeChat = React.useCallback((conversationId: string) => {
-    setActiveChats((prev) =>
-      prev.map((c) =>
-        c.conversationId === conversationId ? { ...c, isMinimized: true } : c
+  const minimizeChat = React.useCallback(
+    (conversationId: string, conversation?: IConversation) => {
+      setActiveChats((prev) =>
+        prev.map((c) =>
+          c.conversationId === conversationId
+            ? {
+                ...c,
+                isMinimized: true,
+                cachedConversation: conversation || c.cachedConversation,
+              }
+            : c
+        )
       )
-    )
-  }, [])
+    },
+    []
+  )
 
   const restoreChat = React.useCallback((conversationId: string) => {
     setActiveChats((prev) => {

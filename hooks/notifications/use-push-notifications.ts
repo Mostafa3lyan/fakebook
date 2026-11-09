@@ -3,7 +3,7 @@
 import * as React from "react"
 import { getToken, onMessage, type MessagePayload } from "firebase/messaging"
 import { toast } from "sonner"
-import { getClientMessaging, FIREBASE_VAPID_KEY } from "@/lib/firebase/config"
+import { getClientMessaging, FIREBASE_VAPID_KEY, firebaseConfig } from "@/lib/firebase/config"
 import { notificationService } from "@/services/notification.service"
 import { useCurrentUser } from "@/hooks/user/use-current-user"
 
@@ -176,7 +176,19 @@ export function usePushNotifications() {
         return null
       }
 
-      const swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js", {
+      const swQuery = new URLSearchParams()
+      if (firebaseConfig.apiKey) swQuery.set("apiKey", firebaseConfig.apiKey)
+      if (firebaseConfig.authDomain) swQuery.set("authDomain", firebaseConfig.authDomain)
+      if (firebaseConfig.projectId) swQuery.set("projectId", firebaseConfig.projectId)
+      if (firebaseConfig.storageBucket) swQuery.set("storageBucket", firebaseConfig.storageBucket)
+      if (firebaseConfig.messagingSenderId) swQuery.set("messagingSenderId", firebaseConfig.messagingSenderId)
+      if (firebaseConfig.appId) swQuery.set("appId", firebaseConfig.appId)
+
+      const swPath = swQuery.toString()
+        ? `/firebase-messaging-sw.js?${swQuery.toString()}`
+        : "/firebase-messaging-sw.js"
+
+      const swRegistration = await navigator.serviceWorker.register(swPath, {
         scope: "/",
       })
 

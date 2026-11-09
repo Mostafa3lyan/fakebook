@@ -7,11 +7,6 @@ import { IConversation, IPublicUser } from "@/lib/types"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { Users, X } from "lucide-react"
 import { conversationService } from "@/services/conversation.service"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 interface MinimizedChatBubbleProps {
   conversationId: string
@@ -25,23 +20,22 @@ export function MinimizedChatBubble({
   const { user } = useCurrentUser()
   const { restoreChat, closeChat, isUserOnline } = useChat()
 
-  const [conversation, setConversation] = React.useState<IConversation | undefined>(
-    cachedConversation
-  )
+  const [fetchedConversation, setFetchedConversation] = React.useState<IConversation | undefined>()
+  const conversation = cachedConversation || fetchedConversation
 
   React.useEffect(() => {
-    if (!conversation) {
+    if (!cachedConversation && !fetchedConversation) {
       conversationService
         .getConversation(conversationId)
-        .then((res) => setConversation(res.data.conversation))
+        .then((res) => setFetchedConversation(res.data.conversation))
         .catch(() => {})
     }
-  }, [conversationId, conversation])
+  }, [conversationId, cachedConversation, fetchedConversation])
 
   const isGroup = conversation?.type === "group"
   const otherParticipant = React.useMemo(() => {
     if (!conversation || isGroup) return null
-    return conversation.participants.find(
+    return conversation.participants?.find(
       (p) => (p.user as IPublicUser)?._id !== user?._id
     )?.user as IPublicUser | undefined
   }, [conversation, isGroup, user?._id])
@@ -56,50 +50,59 @@ export function MinimizedChatBubble({
   const unreadCount = conversation?.unreadCount || 0
 
   return (
-    <div className="group relative pointer-events-auto">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            onClick={() => restoreChat(conversationId)}
-            className="relative flex items-center justify-center size-12 rounded-full shadow-lg border-2 border-background bg-card hover:scale-105 active:scale-95 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            aria-label={`Restore chat with ${title}`}
-          >
-            {isGroup ? (
-              <div className="size-full rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
-                <Users className="size-5" />
-              </div>
-            ) : (
-              <UserAvatar user={otherParticipant} size="md" />
-            )}
+    <div
+      onClick={() => restoreChat(conversationId)}
+      className="group pointer-events-auto flex items-center gap-2 h-10 pl-2 pr-2.5 bg-card text-foreground rounded-full shadow-lg hover:shadow-xl border border-border transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer select-none max-w-[220px] animate-in fade-in slide-in-from-bottom-2 duration-200"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          restoreChat(conversationId)
+        }
+      }}
+      aria-label={`Restore chat with ${title}`}
+      title={`Open chat with ${title}`}
+    >
+      {/* Avatar with online status */}
+      <div className="relative shrink-0">
+        {isGroup ? (
+          <div className="size-7 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+            <Users className="size-3.5" />
+          </div>
+        ) : (
+          <UserAvatar user={otherParticipant} size="sm" className="size-7" />
+        )}
+        {isOnline && (
+          <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-500 ring-2 ring-card" />
+        )}
+      </div>
 
-            {/* Online presence badge */}
-            {isOnline && (
-              <span className="absolute bottom-0 right-0 size-3 rounded-full bg-emerald-500 ring-2 ring-background" />
-            )}
+      {/* Title */}
+      <span className="text-xs font-semibold text-foreground truncate min-w-0 flex-1">
+        {title}
+      </span>
 
-            {/* Unread badge */}
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-destructive text-white text-[10px] font-extrabold leading-none shadow-xs">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            )}
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="left" className="text-xs">
-          {title}
-        </TooltipContent>
-      </Tooltip>
+      {/* Unread count badge */}
+      {unreadCount > 0 && (
+        <span className="flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-destructive text-white text-[10px] font-extrabold leading-none shadow-xs shrink-0">
+          {unreadCount > 99 ? "99+" : unreadCount}
+        </span>
+      )}
 
-      {/* Close button on bubble hover */}
+      {/* Close button with X */}
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation()
+          e.preventDefault()
           closeChat(conversationId)
         }}
-        className="absolute -top-1 -left-1 size-5 rounded-full bg-muted-foreground/80 hover:bg-destructive text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-        aria-label="Close chat"
+        className="size-5 rounded-full hover:bg-muted text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors shrink-0 cursor-pointer ml-0.5"
+        aria-label={`Close chat with ${title}`}
+        title="Close chat"
       >
-        <X className="size-3" />
+        <X className="size-3.5 stroke-[2.5]" />
       </button>
     </div>
   )

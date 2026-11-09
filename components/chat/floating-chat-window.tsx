@@ -82,7 +82,13 @@ export function FloatingChatWindow({
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 bg-card border-b border-border select-none shadow-2xs">
+      <div
+        onClick={(e) => {
+          if ((e.target as HTMLElement).closest("button")) return
+          minimizeChat(conversationId, conversation)
+        }}
+        className="flex items-center justify-between px-3 py-2 bg-card border-b border-border select-none shadow-2xs cursor-pointer hover:bg-muted/30 transition-colors"
+      >
         <div className="flex items-center gap-2 min-w-0">
           <div className="relative">
             {isGroup ? (
@@ -120,6 +126,7 @@ export function FloatingChatWindow({
               onClick={() => openGroupSettings(conversationId)}
               className="size-7 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground"
               aria-label="Group settings"
+              title="Group settings"
             >
               <Settings className="size-3.5" />
             </Button>
@@ -128,9 +135,10 @@ export function FloatingChatWindow({
           <Button
             size="icon"
             variant="ghost"
-            onClick={() => minimizeChat(conversationId)}
+            onClick={() => minimizeChat(conversationId, conversation)}
             className="size-7 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground"
             aria-label="Minimize chat"
+            title="Minimize chat"
           >
             <Minus className="size-3.5" />
           </Button>
@@ -141,6 +149,7 @@ export function FloatingChatWindow({
             onClick={() => closeChat(conversationId)}
             className="size-7 rounded-full hover:bg-muted text-muted-foreground hover:text-destructive"
             aria-label="Close chat"
+            title="Close chat"
           >
             <X className="size-3.5" />
           </Button>
