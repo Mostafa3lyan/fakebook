@@ -21,6 +21,45 @@ async function handleProxyRequest(
   context: RouteContext,
   method: string
 ) {
+  // Cross-Origin Mutation Guard (VULN-FE-04)
+  if (method === "POST" || method === "PUT" || method === "PATCH" || method === "DELETE") {
+    const origin = req.headers.get("origin")
+    const referer = req.headers.get("referer")
+    const host = req.headers.get("host") || req.nextUrl.host
+
+    if (origin) {
+      try {
+        const originHost = new URL(origin).host
+        if (originHost !== host) {
+          return NextResponse.json(
+            { message: "Cross-origin request forbidden" },
+            { status: 403 }
+          )
+        }
+      } catch {
+        return NextResponse.json(
+          { message: "Invalid Origin header" },
+          { status: 403 }
+        )
+      }
+    } else if (referer) {
+      try {
+        const refererHost = new URL(referer).host
+        if (refererHost !== host) {
+          return NextResponse.json(
+            { message: "Cross-origin request forbidden" },
+            { status: 403 }
+          )
+        }
+      } catch {
+        return NextResponse.json(
+          { message: "Invalid Referer header" },
+          { status: 403 }
+        )
+      }
+    }
+  }
+
   const { path } = await context.params
   const targetPath = path.join("/")
   const backendBase = process.env.BACKEND_URL || "http://localhost:3000"
@@ -58,6 +97,15 @@ async function handleProxyRequest(
     }
     if (token) {
       headers.set("authorization", `Bearer ${token}`)
+    }
+    const forwardedFor = req.headers.get("x-forwarded-for")
+    if (forwardedFor) {
+      headers.set("x-forwarded-for", forwardedFor)
+    } else {
+      const clientIp = req.headers.get("x-real-ip")
+      if (clientIp) {
+        headers.set("x-forwarded-for", clientIp)
+      }
     }
     return headers
   }

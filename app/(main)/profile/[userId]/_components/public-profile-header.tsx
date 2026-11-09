@@ -19,6 +19,7 @@ import { ProfileCoverBanner } from "@/app/(main)/profile/_components/profile-cov
 import { ImageLightbox } from "@/components/shared/image-lightbox"
 import { useFriends } from "@/hooks/friends/use-friends"
 import { RelationshipButton } from "./relationship-button"
+import { ProfileMessageButton } from "./profile-message-button"
 import { BlockUserDialog } from "./block-user-dialog"
 
 interface PublicProfileHeaderProps {
@@ -111,9 +112,10 @@ export function PublicProfileHeader({ user }: PublicProfileHeaderProps) {
               </div>
             </div>
 
-            {/* Actions: Dynamic relationship button & options dropdown */}
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
+            {/* Actions: Dynamic relationship button, message button & options dropdown */}
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
               <RelationshipButton targetUser={user} />
+              <ProfileMessageButton user={user} />
 
               {!isSelf && (
                 <DropdownMenu>

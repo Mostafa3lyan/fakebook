@@ -15,9 +15,15 @@ export async function GET(req: NextRequest, context: MediaRouteContext) {
   // Strip leading "uploads/" if accidentally duplicated in the route segments
   assetKey = assetKey.replace(/^uploads\//, "")
 
-  // If the assetKey is already an absolute URL, redirect or fetch directly
-  if (assetKey.startsWith("http://") || assetKey.startsWith("https://")) {
-    return NextResponse.redirect(assetKey)
+  // Reject absolute URLs, scheme-relative URLs, or path traversal
+  if (
+    assetKey.startsWith("http://") ||
+    assetKey.startsWith("https://") ||
+    assetKey.startsWith("//") ||
+    assetKey.includes("..") ||
+    assetKey.includes("\\")
+  ) {
+    return new NextResponse("Invalid asset key", { status: 400 })
   }
 
   const backendBase = process.env.BACKEND_URL || "http://localhost:3000"

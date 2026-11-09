@@ -1,12 +1,7 @@
 "use client"
 
-import * as React from "react"
-import { IMessage } from "@/lib/types"
-import { useCurrentUser } from "@/hooks/user/use-current-user"
 import { UserAvatar } from "@/components/shared/user-avatar"
-import { cn } from "@/lib/utils"
-import { formatTime } from "@/lib/utils/date"
-import { Check, CheckCheck, Clock, FileText, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,8 +9,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useConversationActions } from "@/hooks/chat/use-conversation-actions"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { useCurrentUser } from "@/hooks/user/use-current-user"
+import { IMessage } from "@/lib/types"
+import { cn } from "@/lib/utils"
+import { formatTime } from "@/lib/utils/date"
+import { Check, CheckCheck, Clock, FileText, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import * as React from "react"
+import { Textarea } from "../ui/textarea"
 
 interface MessageBubbleProps {
   message: IMessage
@@ -98,11 +98,18 @@ export function MessageBubble({
         <div className="w-6 shrink-0" />
       ) : null}
 
-      <div className={cn("flex flex-col gap-1", isMe ? "items-end" : "items-start")}>
+      <div
+        className={cn(
+          "flex min-w-0 flex-col gap-1",
+          isEditing ? "w-full max-w-[90%]" : "max-w-[75%]",
+          isMe ? "items-end" : "items-start"
+        )}
+      >
         {/* Message bubble content */}
         <div
           className={cn(
-            "relative rounded-2xl px-3.5 py-2 break-words shadow-xs text-sm transition-colors",
+            "relative max-w-full min-w-0 rounded-2xl px-3.5 py-2 wrap-anywhere shadow-xs text-sm transition-colors",
+            isEditing && "w-full",
             isMe
               ? "bg-primary text-primary-foreground rounded-br-xs"
               : "bg-muted text-foreground rounded-bl-xs",
@@ -110,23 +117,32 @@ export function MessageBubble({
           )}
         >
           {isEditing ? (
-            <div className="flex items-center gap-1.5 py-1">
-              <Input
+            <div className="flex w-full flex-col gap-2 py-1">
+              <Textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="h-8 text-xs bg-background text-foreground"
+                className="field-sizing-content min-h-16 max-h-[40vh] w-full resize-none overflow-y-auto bg-background text-foreground text-sm"
                 autoFocus
+                onFocus={(e) => {
+                  const len = e.currentTarget.value.length
+                  e.currentTarget.setSelectionRange(len, len)
+                }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSaveEdit()
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault()
+                    handleSaveEdit()
+                  }
                   if (e.key === "Escape") setIsEditing(false)
                 }}
               />
-              <Button size="xs" variant="default" onClick={handleSaveEdit}>
-                Save
-              </Button>
-              <Button size="xs" variant="ghost" onClick={() => setIsEditing(false)}>
-                Cancel
-              </Button>
+              <div className="flex justify-end gap-1.5">
+                <Button size="xs" variant="ghost" onClick={() => setIsEditing(false)}>
+                  Cancel
+                </Button>
+                <Button size="xs" variant="default" onClick={handleSaveEdit}>
+                  Save
+                </Button>
+              </div>
             </div>
           ) : (
             <>
@@ -167,7 +183,9 @@ export function MessageBubble({
               )}
 
               {/* Text content */}
-              <p className="whitespace-pre-wrap leading-relaxed select-text">{message.content}</p>
+              <p className="whitespace-pre-wrap wrap-anywhere leading-relaxed select-text">
+                {message.content}
+              </p>
 
               {message.isEdited && !message.isDeleted && (
                 <span className="text-[10px] opacity-70 ml-1.5 select-none">(edited)</span>
