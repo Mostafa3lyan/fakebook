@@ -4,7 +4,7 @@ import * as React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { usePosts } from "@/hooks/posts/use-posts"
-import { postService } from "@/services/post.service"
+import { postGraphQLService } from "@/services/post.graphql"
 import { PostFeed } from "@/components/posts"
 import { PostCommentDialog } from "@/components/posts/post-comment-dialog"
 
@@ -32,8 +32,8 @@ export function HomeFeedStream() {
     queryKey: ["post-detail", targetPostId],
     queryFn: async () => {
       if (!targetPostId) return null
-      const res = await postService.getPostById(targetPostId)
-      return res.data.post
+      const res = await postGraphQLService.getPostById(targetPostId)
+      return res.post
     },
     enabled: Boolean(targetPostId && !feedMatch),
     retry: false,

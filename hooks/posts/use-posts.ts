@@ -1,7 +1,7 @@
 "use client"
 
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { postService } from "@/services/post.service"
+import { postGraphQLService } from "@/services/post.graphql"
 import { IPost, PaginatedResult } from "@/lib/types"
 
 interface UsePostsOptions {
@@ -13,12 +13,12 @@ export function usePosts({ search, limit = 10 }: UsePostsOptions = {}) {
   const query = useInfiniteQuery<{ posts: PaginatedResult<IPost> }>({
     queryKey: ["posts", { search }],
     queryFn: async ({ pageParam = 1 }) => {
-      const response = await postService.getPosts({
+      const response = await postGraphQLService.getPosts({
         page: pageParam as number,
         limit,
         search,
       })
-      return response.data
+      return response
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {

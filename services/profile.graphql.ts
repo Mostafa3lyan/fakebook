@@ -1,25 +1,14 @@
 import { gqlRequest } from "@/lib/api/graphql"
-import { FriendshipStatusType } from "@/lib/types"
+import { userService } from "./user.service"
+import { FriendshipStatusType, IPublicUser } from "@/lib/types"
 
 export interface GraphQLFriendshipStatus {
   status: FriendshipStatusType
   requestId?: string | null
 }
 
-export interface GraphQLPublicUser {
-  _id: string
-  firstName: string
-  lastName: string
-  fullName?: string
-  profilePicture?: string
-  profileCoverPictures?: string[]
-  profileVisits?: number
-  friendsCount?: number
-  friendshipStatus?: GraphQLFriendshipStatus
-}
-
 export interface ShareProfileQueryResult {
-  shareProfile: GraphQLPublicUser
+  shareProfile: IPublicUser
 }
 
 export const SHARE_PROFILE_QUERY = `
@@ -42,9 +31,22 @@ export const SHARE_PROFILE_QUERY = `
 `
 
 export const profileGraphQLService = {
-  getPublicProfile: (userId: string) =>
-    gqlRequest<ShareProfileQueryResult, { userId: string }>(SHARE_PROFILE_QUERY, {
-      userId,
-    }),
+  getPublicProfile: async (userId: string): Promise<IPublicUser> => {
+    try {
+      const data = await gqlRequest<ShareProfileQueryResult, { userId: string }>(
+        SHARE_PROFILE_QUERY,
+        { userId }
+      )
+      if (data?.shareProfile) {
+        return data.shareProfile
+      }
+    } catch (err) {
+      console.warn("[GraphQL] shareProfile query failed, falling back to REST:", err)
+    }
+
+    // Resilient fallback to REST so the UI never crashes or shows a false "Profile Not Found"
+    const restRes = await userService.shareProfile(userId)
+    return restRes.data.account
+  },
 }
 

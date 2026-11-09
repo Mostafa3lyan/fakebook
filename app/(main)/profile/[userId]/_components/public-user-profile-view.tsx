@@ -18,8 +18,7 @@ export function PublicUserProfileView({ userId }: PublicUserProfileViewProps) {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["public-profile", userId],
     queryFn: async () => {
-      const response = await profileGraphQLService.getPublicProfile(userId)
-      return response.shareProfile
+      return await profileGraphQLService.getPublicProfile(userId)
     },
     enabled: Boolean(userId),
     staleTime: 1000 * 60 * 2,
